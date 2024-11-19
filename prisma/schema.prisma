@@ -50,23 +50,35 @@ model Scheduler {
 }
 
 model Attendance {
-  attendance_id Int       @id @default(autoincrement())
-  is_sunday     Boolean   @default(false)
-  is_monday     Boolean   @default(false)
-  is_tuesday    Boolean   @default(false)
-  is_wednesday  Boolean   @default(false)
-  is_thursday   Boolean   @default(false)
-  is_friday     Boolean   @default(false)
-  is_saturday   Boolean   @default(false)
-  is_active     Boolean   @default(true)
-  via           Via
-  kondisi       String
-  location      Location? @relation(fields: [location_id], references: [location_id])
-  created_at    DateTime  @default(now())
-  updated_at    DateTime? @updatedAt
-  user          User?     @relation(fields: [user_id], references: [user_id])
-  user_id       String?
-  location_id   Int?
+  attendance_id         Int       @id @default(autoincrement())
+  is_sunday             Boolean   @default(false)
+  is_monday             Boolean   @default(false)
+  is_tuesday            Boolean   @default(false)
+  is_wednesday          Boolean   @default(false)
+  is_thursday           Boolean   @default(false)
+  is_friday             Boolean   @default(false)
+  is_saturday           Boolean   @default(false)
+  location_sunday       Location? @relation(fields: [location_sunday_id], references: [location_id], name: "location_sunday")
+  location_monday       Location? @relation(fields: [location_monday_id], references: [location_id], name: "location_monday")
+  location_tuesday      Location? @relation(fields: [location_tuesday_id], references: [location_id], name: "location_tuesday")
+  location_wednesday    Location? @relation(fields: [location_wednesday_id], references: [location_id], name: "location_wednesday")
+  location_thursday     Location? @relation(fields: [location_thursday_id], references: [location_id], name: "location_thursday")
+  location_friday       Location? @relation(fields: [location_friday_id], references: [location_id], name: "location_friday")
+  location_saturday     Location? @relation(fields: [location_saturday_id], references: [location_id], name: "location_saturday")
+  is_active             Boolean   @default(true)
+  via                   Via
+  kondisi               String
+  created_at            DateTime  @default(now())
+  updated_at            DateTime? @updatedAt
+  user                  User?     @relation(fields: [user_id], references: [user_id])
+  user_id               String?
+  location_sunday_id    Int?
+  location_monday_id    Int?
+  location_tuesday_id   Int?
+  location_wednesday_id Int?
+  location_thursday_id  Int?
+  location_friday_id    Int?
+  location_saturday_id  Int?
 }
 
 model Job {
@@ -89,17 +101,23 @@ model JobActivity {
 }
 
 model Location {
-  location_id Int          @id @default(autoincrement())
-  name        String       @unique
-  lokasi      String
-  alamat      String
-  state       String
-  provinsi    String
-  created_at  DateTime     @default(now())
-  updated_at  DateTime?    @updatedAt
-  user        User?        @relation(fields: [user_id], references: [user_id])
-  user_id     String?
-  attendance  Attendance[]
+  location_id          Int          @id @default(autoincrement())
+  name                 String       @unique
+  lokasi               String
+  alamat               String
+  state                String
+  provinsi             String
+  created_at           DateTime     @default(now())
+  updated_at           DateTime?    @updatedAt
+  user                 User?        @relation(fields: [user_id], references: [user_id])
+  user_id              String?
+  sunday_attendance    Attendance[] @relation("location_sunday")
+  monday_attendance    Attendance[] @relation("location_monday")
+  tuesday_attendance   Attendance[] @relation("location_tuesday")
+  wednesday_attendance Attendance[] @relation("location_wednesday")
+  thursday_attendance  Attendance[] @relation("location_thursday")
+  friday_attendance    Attendance[] @relation("location_friday")
+  saturday_attendance  Attendance[] @relation("location_saturday")
 }
 
 enum Via {
