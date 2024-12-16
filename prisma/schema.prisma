@@ -31,11 +31,13 @@ model User {
   created_at          DateTime      @default(now())
   updated_at          DateTime      @updatedAt
   role                Role          @relation(fields: [role_id], references: [role_id])
+  job                 Job?          @relation(fields: [job_id], references: [job_id])
   role_id             String
   scheduler           Scheduler[]
   attendance          Attendance[]
   job_activity        JobActivity[]
   location            Location[]
+  job_id              Int?
 }
 
 model Scheduler {
@@ -87,6 +89,7 @@ model Job {
   job_activity JobActivity[]
   created_at   DateTime      @default(now())
   updated_at   DateTime?     @updatedAt
+  User         User[]
 }
 
 model JobActivity {
