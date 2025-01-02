@@ -27,7 +27,7 @@ app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
 
-app.route('/', userController);
+app.route('/api/users/', userController);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {

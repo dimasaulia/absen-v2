@@ -5,10 +5,11 @@ import {
   RegisterUserRequest,
 } from './user.model';
 import { UserService } from './user.service';
+import { authMiddleware } from '../middleware/user.middleware';
 
 export const userController = new Hono();
 
-userController.post('/api/users', async (c) => {
+userController.post('/', async (c) => {
   const request = (await c.req.json()) as RegisterUserRequest;
   request.provider = 'MANUAL';
   const response = await UserService.register(request);
@@ -18,7 +19,11 @@ userController.post('/api/users', async (c) => {
   });
 });
 
-userController.post('/api/users/login', async (c) => {
+userController.get('/', authMiddleware, async (c) => {
+  return c.json({ username: 'Detail User' });
+});
+
+userController.post('/login', async (c) => {
   const request = (await c.req.json()) as LoginUserRequest;
   request.provider = 'MANUAL';
   const response = await UserService.login(c, request);
@@ -28,13 +33,13 @@ userController.post('/api/users/login', async (c) => {
   });
 });
 
-userController.get('/api/users/google', async (c) => {
+userController.get('/google', async (c) => {
   const url = await UserService.registerWithGoogle(c);
 
   return c.redirect(url.toString());
 });
 
-userController.get('/api/users/google/register/callback', async (c) => {
+userController.get('/google/register/callback', async (c) => {
   const user = await UserService.getGoogleInfo(false, c);
   const username =
     user.name.toLowerCase().replaceAll(' ', '_') +
@@ -57,7 +62,7 @@ userController.get('/api/users/google/register/callback', async (c) => {
   return c.redirect('/');
 });
 
-userController.get('/api/users/google/login/callback', async (c) => {
+userController.get('/google/login/callback', async (c) => {
   const user = await UserService.getGoogleInfo(true, c);
   console.log('USER => ');
   console.log(user);
