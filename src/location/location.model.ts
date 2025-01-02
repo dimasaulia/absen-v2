@@ -6,3 +6,11 @@ export type LocationResponse = {
   state: string;
   provinsi: string;
 };
+
+export type AddLocationRequest = {
+  name: string;
+  lokasi: string;
+  alamat: string;
+  state: string;
+  provinsi: string;
+};

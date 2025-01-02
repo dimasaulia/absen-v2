@@ -1,9 +1,10 @@
 import { Context } from 'hono';
 import { prisma } from '../providers/database.providers';
-import { LocationResponse } from './location.model';
+import { AddLocationRequest, LocationResponse } from './location.model';
 import { HTTPException } from 'hono/http-exception';
 import { use } from 'hono/jsx';
 import { UserData, UserResponse } from '../user/user.model';
+import { LocationValidation } from './location.validation';
 
 export class LocationService {
   static async getUserLocation(c: Context): Promise<LocationResponse[]> {
@@ -33,5 +34,26 @@ export class LocationService {
         message: String(error),
       });
     }
+  }
+
+  static async addLocation(
+    c: Context,
+    locationData: AddLocationRequest
+  ): Promise<String> {
+    LocationValidation.ADD_LOCATION.parse(locationData);
+    const userData: UserData = c.get('userData');
+
+    await prisma.location.create({
+      data: {
+        name: locationData.name,
+        alamat: locationData.alamat,
+        lokasi: locationData.lokasi,
+        state: locationData.state,
+        provinsi: locationData.provinsi,
+        user_id: userData.user_id,
+      },
+    });
+
+    return `Sukses Menambahkan Lokasi ${locationData.name}`;
   }
 }
