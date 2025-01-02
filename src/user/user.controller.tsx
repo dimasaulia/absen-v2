@@ -20,7 +20,10 @@ userController.post('/', async (c) => {
 });
 
 userController.get('/', authMiddleware, async (c) => {
-  return c.json({ username: 'Detail User' });
+  const response = await UserService.getUserDetail(c);
+  return c.json({
+    data: response,
+  });
 });
 
 userController.post('/login', async (c) => {

@@ -5,10 +5,19 @@ import { ZodError } from 'zod';
 import { serve } from 'bun';
 import { CookieStore, sessionMiddleware } from 'hono-sessions';
 import { generateState, OAuth2Client } from 'oslo/oauth2';
+import {
+  JwtTokenExpired,
+  JwtTokenSignatureMismatched,
+} from 'hono/utils/jwt/types';
+import { UserResponse } from './user/user.model';
 
 const store = new CookieStore();
 
-const app = new Hono();
+type Variables = {
+  userData: UserResponse;
+};
+
+const app = new Hono<{ Variables: Variables }>();
 
 app.use(
   '*',
@@ -39,6 +48,15 @@ app.onError(async (err, c) => {
     c.status(400);
     return c.json({
       errors: err.message,
+    });
+  } else if (
+    err instanceof JwtTokenExpired ||
+    err instanceof JwtTokenSignatureMismatched
+  ) {
+    c.status(401);
+    return c.json({
+      errors:
+        err instanceof JwtTokenExpired ? 'Token Expired' : 'Token Invalid',
     });
   } else {
     c.status(500);

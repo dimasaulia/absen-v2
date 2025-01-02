@@ -139,6 +139,30 @@ export class UserService {
     return response;
   }
 
+  static async getUserDetail(c: Context) {
+    const userData: UserResponse = c.get('userData');
+
+    const user = await prisma.user.findUnique({
+      select: {
+        username: true,
+        email: true,
+        password: true,
+        full_name: true,
+        provider: true,
+        role: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      where: {
+        username: userData.username,
+      },
+    });
+
+    return user;
+  }
+
   static async registerWithGoogle(c: Context): Promise<string> {
     console.log(c.req.queries);
     const isLogin = String(c.req.queries('process')) === 'login' ? true : false;
