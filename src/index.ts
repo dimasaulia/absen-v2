@@ -9,12 +9,13 @@ import {
   JwtTokenExpired,
   JwtTokenSignatureMismatched,
 } from 'hono/utils/jwt/types';
-import { UserResponse } from './user/user.model';
+import { UserData } from './user/user.model';
+import { locationController } from './location/location.controller';
 
 const store = new CookieStore();
 
 type Variables = {
-  userData: UserResponse;
+  userData: UserData;
 };
 
 const app = new Hono<{ Variables: Variables }>();
@@ -37,6 +38,7 @@ app.get('/', (c) => {
 });
 
 app.route('/api/users/', userController);
+app.route('/api/locations/', locationController);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {

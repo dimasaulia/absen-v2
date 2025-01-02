@@ -7,6 +7,7 @@ import {
   toUserResponse,
   GoogleUserResponse,
   LoginUserRequest,
+  UserData,
 } from './user.model';
 import { UserValidation } from './user.validation';
 import { HTTPException } from 'hono/http-exception';
@@ -70,7 +71,10 @@ export class UserService {
     return toUserResponse(newUser);
   }
 
-  static async login(c: Context, request: LoginUserRequest) {
+  static async login(
+    c: Context,
+    request: LoginUserRequest
+  ): Promise<UserResponse> {
     // Validasi request
     if (request.provider === 'MANUAL') {
       request = UserValidation.LOGIN.parse(request);
@@ -140,7 +144,7 @@ export class UserService {
   }
 
   static async getUserDetail(c: Context) {
-    const userData: UserResponse = c.get('userData');
+    const userData: UserData = c.get('userData');
 
     const user = await prisma.user.findUnique({
       select: {

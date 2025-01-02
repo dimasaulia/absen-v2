@@ -23,6 +23,13 @@ export type UserResponse = {
   token?: string;
 };
 
+export type UserData = {
+  user_id: string;
+  username: string;
+  name: string;
+  role: string;
+};
+
 export type GoogleUserResponse = {
   sub: string;
   name: string;

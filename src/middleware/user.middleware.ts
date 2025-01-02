@@ -2,7 +2,7 @@ import { Context, Next } from 'hono';
 import { getCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import { verify } from 'hono/jwt';
-import { UserResponse } from '../user/user.model';
+import { UserData, UserResponse } from '../user/user.model';
 import { prisma } from '../providers/database.providers';
 
 export const authMiddleware = async (c: Context, next: Next) => {
@@ -20,16 +20,38 @@ export const authMiddleware = async (c: Context, next: Next) => {
     Bun.env.JWT_SECRET!
   )) as UserResponse;
 
-  const user = await prisma.user.count({
-    where: { username: decodedPayload.username },
+  const user = await prisma.user.findUnique({
+    select: {
+      user_id: true,
+      username: true,
+      email: true,
+      password: true,
+      full_name: true,
+      provider: true,
+      role: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    where: {
+      username: decodedPayload.username,
+    },
   });
 
-  if (user < 1)
+  if (!user)
     throw new HTTPException(401, {
       message: 'User Tidak Ditemukan',
     });
 
-  c.set('userData', decodedPayload);
+  const userData: UserData = {
+    user_id: user.user_id,
+    username: user.username,
+    name: user.full_name,
+    role: user.role.name,
+  };
+
+  c.set('userData', userData);
 
   // Proceed to the next middleware or main handler
   await next();
