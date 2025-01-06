@@ -11,6 +11,7 @@ import {
 } from 'hono/utils/jwt/types';
 import { UserData } from './user/user.model';
 import { locationController } from './location/location.controller';
+import { activityController } from './activity/activity.controller';
 
 const store = new CookieStore();
 
@@ -39,6 +40,7 @@ app.get('/', (c) => {
 
 app.route('/api/users/', userController);
 app.route('/api/locations/', locationController);
+app.route('/api/job/', activityController);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {

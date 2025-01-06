@@ -28,6 +28,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
       password: true,
       full_name: true,
       provider: true,
+      job_id: true,
       role: {
         select: {
           name: true,
@@ -49,6 +50,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     username: user.username,
     name: user.full_name,
     role: user.role.name,
+    job_id: user.job_id,
   };
 
   c.set('userData', userData);

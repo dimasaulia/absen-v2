@@ -25,6 +25,7 @@ export type UserResponse = {
 
 export type UserData = {
   user_id: string;
+  job_id: number | null;
   username: string;
   name: string;
   role: string;
