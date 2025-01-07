@@ -68,8 +68,6 @@ userController.get('/google/register/callback', async (c) => {
 
 userController.get('/google/login/callback', async (c) => {
   const user = await UserService.getGoogleInfo(true, c);
-  console.log('USER => ');
-  console.log(user);
   await UserService.login(c, {
     emailOrUsername: user.email,
     provider: 'GOOGLE',

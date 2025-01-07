@@ -172,7 +172,6 @@ export class UserService {
   }
 
   static async registerWithGoogle(c: Context): Promise<string> {
-    console.log(c.req.queries);
     const isLogin = String(c.req.queries('process')) === 'login' ? true : false;
     const googleClientId = Bun.env.GOOGLE_CLIENT_ID || '';
     const googleBaseUrl: string =
@@ -183,7 +182,6 @@ export class UserService {
     const redirectUrl = isLogin
       ? `${protocol}${host}${redirectLoginEndpoint}`
       : `${protocol}${host}${redirectRegisterEndpoint}`;
-    console.log(redirectUrl);
     const googleOAuth2State = generateState();
 
     const url = new URL(googleBaseUrl);
@@ -245,7 +243,6 @@ export class UserService {
 
     const res = await fetch(request);
     const result = await res.json();
-    console.log();
 
     const response = await fetch(
       'https://www.googleapis.com/oauth2/v3/userinfo',

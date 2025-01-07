@@ -1,4 +1,5 @@
 import { prisma } from './database.providers';
+import { logger } from './logging.providers';
 
 export interface ISchedulePayload {
   via: string;
@@ -14,7 +15,7 @@ export async function userDoLogin(
   username: string,
   password: string
 ): Promise<[boolean, any]> {
-  console.log(`Executing Login to Eoffice for ${username}`);
+  logger.info(`Executing Login to Eoffice for ${username}`);
 
   let isSuccessLogin = false;
   const reqBody = new URLSearchParams();
@@ -49,7 +50,7 @@ export async function userDoAttandend({
   cookies: string;
   taskId?: string;
 }) {
-  console.log('Executing Attandend Proccess');
+  logger.info('Executing Attandend Proccess');
   if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
     return new Error('Pilihan metode absen tidak tersedia');
   }
@@ -76,9 +77,10 @@ export async function userDoAttandend({
     }
   );
 
-  console.log('RESP => ');
-  console.log(resp.headers.getSetCookie());
-  console.log(await resp.text());
+  logger.info('START RESP => ');
+  logger.info(resp.headers.getSetCookie());
+  logger.info(await resp.text());
+  logger.info('END RESP');
 
   if (taskId) {
     await prisma.scheduler.deleteMany({

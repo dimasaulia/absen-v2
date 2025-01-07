@@ -1,3 +1,5 @@
+import { logger } from './logging.providers';
+
 export class Scheduler {
   private static SCHEDULER_LIST: { [key: string]: { timer: NodeJS.Timer } } =
     {};
@@ -29,7 +31,7 @@ export class Scheduler {
     const timer = setTimeout(fn, ms);
     Scheduler.SCHEDULER_LIST[id] = { timer: timer };
 
-    console.log(
+    logger.info(
       `New scheduler with id ${id} set to run on ${new Date(
         date
       ).toISOString()}`
@@ -48,10 +50,10 @@ export class Scheduler {
   static removeTask(id: string): void {
     const task = Scheduler.SCHEDULER_LIST[id];
     if (task == undefined) {
-      console.log("Task ID Can't Be Found");
+      logger.info("Task ID Can't Be Found");
       return;
     }
-    console.log(`Task ${id} Was Removed`);
+    logger.info(`Task ${id} Was Removed`);
     clearTimeout(task.timer);
     delete Scheduler.SCHEDULER_LIST[id];
   }

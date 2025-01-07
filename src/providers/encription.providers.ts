@@ -19,7 +19,6 @@ export function encryptText(text: string): string {
   );
   let encrypted = cipher.update(text, 'utf8', 'base64');
   encrypted += cipher.final('base64');
-  console.log(encryptText);
   return encrypted;
 }
 
