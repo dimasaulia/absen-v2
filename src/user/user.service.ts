@@ -8,6 +8,7 @@ import {
   GoogleUserResponse,
   LoginUserRequest,
   UserData,
+  EofficeRequest,
 } from './user.model';
 import { UserValidation } from './user.validation';
 import { HTTPException } from 'hono/http-exception';
@@ -20,6 +21,8 @@ import {
   tokenEndpoint,
 } from '../providers/gapi.providers';
 import { decode, sign, verify } from 'hono/jwt';
+import { userDoLogin } from '../providers/attendance.providers';
+import { encryptText } from '../providers/encription.providers';
 
 export class UserService {
   static async register(request: RegisterUserRequest): Promise<UserResponse> {
@@ -251,5 +254,31 @@ export class UserService {
     );
 
     return (await response.json()) as GoogleUserResponse;
+  }
+
+  static async syncEoffice(
+    request: EofficeRequest,
+    c: Context
+  ): Promise<string> {
+    const req: EofficeRequest = UserValidation.EOFFICE.parse(request);
+    const userData: UserData = c.get('userData');
+
+    const [resp, _] = await userDoLogin(req.username, req.password);
+
+    if (resp) {
+      await prisma.user.update({
+        data: {
+          eoffice_username: req.username,
+          eoffice_password: encryptText(req.password),
+        },
+        where: {
+          user_id: userData.user_id,
+        },
+      });
+    }
+
+    return resp
+      ? 'Sukses Melakukan Integrasi Ke Eoffice'
+      : 'Gagal Melakukan Integrasi Ke Eoffice';
   }
 }

@@ -1,4 +1,16 @@
-async function userDoLogin(
+import { prisma } from './database.providers';
+
+export interface ISchedulePayload {
+  via: string;
+  state: string;
+  alamat: string;
+  lokasi: string;
+  kondisi: string;
+  provinsi: string;
+  aktivitas: string;
+}
+
+export async function userDoLogin(
   username: string,
   password: string
 ): Promise<[boolean, any]> {
@@ -23,18 +35,19 @@ async function userDoLogin(
     'url=https://eoffice.ilcs.co.id/p2b/absensi/online'
       ? true
       : false;
-
-  return [isSuccessLogin, resp.headers.get('set-cookie')];
+  return [isSuccessLogin, isSuccessLogin ? resp.headers.get('set-cookie') : ''];
 }
 
-async function userDoAttandend({
+export async function userDoAttandend({
   attandendType,
   attandendData,
   cookies,
+  taskId,
 }: {
   attandendType: string;
-  attandendData: { [key: string]: string };
+  attandendData: ISchedulePayload;
   cookies: string;
+  taskId?: string;
 }) {
   console.log('Executing Attandend Proccess');
   if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
@@ -44,7 +57,7 @@ async function userDoAttandend({
   const reqBody = new URLSearchParams();
   if (attandendData != null || attandendData != undefined) {
     for (const key in attandendData) {
-      reqBody.append(key, attandendData[key]);
+      reqBody.append(key, attandendData[key as keyof ISchedulePayload]);
     }
   }
   const myHeaders = new Headers();
@@ -66,4 +79,12 @@ async function userDoAttandend({
   console.log('RESP => ');
   console.log(resp.headers.getSetCookie());
   console.log(await resp.text());
+
+  if (taskId) {
+    await prisma.scheduler.deleteMany({
+      where: {
+        task_id: taskId,
+      },
+    });
+  }
 }

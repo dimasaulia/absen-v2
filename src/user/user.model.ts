@@ -41,6 +41,11 @@ export type GoogleUserResponse = {
   email_verified: boolean;
 };
 
+export type EofficeRequest = {
+  username: string;
+  password: string;
+};
+
 export function toUserResponse(user: User): UserResponse {
   return {
     username: user.username,

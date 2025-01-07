@@ -22,4 +22,9 @@ export class UserValidation {
     emailOrUsername: z.string().min(1),
     password: z.string().min(1),
   });
+
+  static readonly EOFFICE: ZodType = z.object({
+    username: z.string().min(1),
+    password: z.string().min(1),
+  });
 }
