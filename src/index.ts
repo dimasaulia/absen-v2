@@ -13,7 +13,9 @@ import { UserData } from './user/user.model';
 import { locationController } from './location/location.controller';
 import { activityController } from './activity/activity.controller';
 import { attendanceController } from './attendance/attendance.controller';
-
+import { logger } from './providers/logging.providers';
+import { schedule } from 'node-cron';
+import { wakeupAttendance } from './providers/attendance.providers';
 const store = new CookieStore();
 
 type Variables = {
@@ -72,9 +74,20 @@ app.onError(async (err, c) => {
   }
 });
 
+logger.info('Set Scheduled Absen Masuk Running On 08.00 WIB');
+schedule('0 0 8 * * *', () => {
+  logger.info(`Cron Job For Absen Masuk at ${new Date()}`);
+  wakeupAttendance('absen_pulang');
+});
+
+logger.info('Set Scheduled Absen Pulang Running On 20.00 WIB');
+schedule('0 0 20 * * *', () => {
+  logger.info(`Cron Job For Absen Pulang at ${new Date()}`);
+  wakeupAttendance('absen_pulang');
+});
+
 serve({ port: 8000, fetch: app.fetch });
 
-const PORT = 8080; // Change this to your desired port
 export default {
   port: 8000,
   fetch: app.fetch,
