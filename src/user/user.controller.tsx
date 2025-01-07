@@ -87,3 +87,11 @@ userController.put('/eoffice', authMiddleware, async (c) => {
     message: response,
   });
 });
+
+userController.put('/job', authMiddleware, async (c) => {
+  const resp = await UserService.setJob(c);
+  return c.json({
+    message: 'Sukses Memperbaharui Pekerjaan User',
+    data: resp,
+  });
+});

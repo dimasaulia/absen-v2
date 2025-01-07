@@ -46,6 +46,10 @@ export type EofficeRequest = {
   password: string;
 };
 
+export type SetUserJobRequest = {
+  job_id: Number;
+};
+
 export function toUserResponse(user: User): UserResponse {
   return {
     username: user.username,

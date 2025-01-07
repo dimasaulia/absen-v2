@@ -9,6 +9,7 @@ import {
   LoginUserRequest,
   UserData,
   EofficeRequest,
+  SetUserJobRequest,
 } from './user.model';
 import { UserValidation } from './user.validation';
 import { HTTPException } from 'hono/http-exception';
@@ -280,5 +281,30 @@ export class UserService {
     return resp
       ? 'Sukses Melakukan Integrasi Ke Eoffice'
       : 'Gagal Melakukan Integrasi Ke Eoffice';
+  }
+
+  static async setJob(c: Context): Promise<UserResponse> {
+    const req: SetUserJobRequest = UserValidation.SET_USER_JOB.parse(
+      await c.req.json()
+    );
+    const userData: UserData = c.get('userData');
+
+    const job = await prisma.job.count({ where: { job_id: +req.job_id } });
+
+    if (job < 1)
+      throw new HTTPException(500, {
+        message: 'Data Job tidak ditemukan',
+      });
+
+    const user = await prisma.user.update({
+      data: {
+        job_id: +req.job_id,
+      },
+      where: {
+        user_id: userData.user_id,
+      },
+    });
+
+    return toUserResponse(user);
   }
 }
