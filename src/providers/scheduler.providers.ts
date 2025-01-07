@@ -1,4 +1,4 @@
-class Scheduler {
+export class Scheduler {
   private static SCHEDULER_LIST: { [key: string]: { timer: NodeJS.Timer } } =
     {};
 
@@ -12,7 +12,7 @@ class Scheduler {
    */
   static setTask(
     date: Date | string,
-    fn: () => void,
+    fn: () => Promise<void>,
     taskId: string | null = null
   ): string {
     let id = taskId;
