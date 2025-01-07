@@ -1,14 +1,16 @@
 import { Context } from 'hono';
 import { UserData } from '../user/user.model';
 import { prisma } from '../providers/database.providers';
-import { Scheduler as IScheduler, Prisma } from '@prisma/client';
+import { Prisma as IPrisma } from '@prisma/client';
 import {
+  AttendanceRequest,
   AttendanceResponse,
   IUserWithAttendanceAndLocations,
 } from './attendance.model';
+import { AttendanceValidation } from './attendance.validation';
 
 export class AttendanceService {
-  static async getUserAttendance(c: Context) {
+  static async getUserAttendance(c: Context): Promise<AttendanceResponse> {
     const userData: UserData = c.get('userData');
     const result: AttendanceResponse = { activity: [], attendance: [] };
     const daysOfWeek = [
@@ -43,7 +45,7 @@ export class AttendanceService {
 
     const userAttendances = await prisma.$queryRaw<
       IUserWithAttendanceAndLocations[]
-    >(Prisma.sql`
+    >(IPrisma.sql`
         SELECT 
             u.user_id,
             u.username, 
@@ -143,7 +145,7 @@ export class AttendanceService {
         `${day}_state` as keyof IUserWithAttendanceAndLocations;
       const dayProvinsiKey =
         `${day}_provinsi` as keyof IUserWithAttendanceAndLocations;
-      console.log(userAttendance.late_max_time_tuesday, lateMaxTimeKey);
+
       result.attendance.push({
         day: day,
         min_time: userAttendance[lateMinTimeKey] as Number,
@@ -159,5 +161,94 @@ export class AttendanceService {
     }
 
     return result;
+  }
+
+  static async setUserAttendance(c: Context) {
+    const userData: UserData = c.get('userData');
+    const req: AttendanceRequest = AttendanceValidation.ADD_ATTENDANCE.parse(
+      await c.req.json()
+    );
+
+    const newAttendance: IPrisma.AttendanceCreateInput = {
+      via: req.via,
+      kondisi: req.kondisi,
+      is_sunday: req.attendance_on_sunday,
+      is_monday: req.attendance_on_monday,
+      is_tuesday: req.attendance_on_tuesday,
+      is_wednesday: req.attendance_on_wednesday,
+      is_thursday: req.attendance_on_thursday,
+      is_friday: req.attendance_on_friday,
+      is_saturday: req.attendance_on_saturday,
+      late_min_time_sunday: req.min_time_sunday,
+      late_min_time_monday: req.min_time_monday,
+      late_min_time_tuesday: req.min_time_tuesday,
+      late_min_time_wednesday: req.min_time_wednesday,
+      late_min_time_thursday: req.min_time_thursday,
+      late_min_time_friday: req.min_time_friday,
+      late_min_time_saturday: req.min_time_saturday,
+      late_max_time_sunday: req.max_time_sunday,
+      late_max_time_monday: req.max_time_monday,
+      late_max_time_tuesday: req.max_time_tuesday,
+      late_max_time_wednesday: req.max_time_wednesday,
+      late_max_time_thursday: req.max_time_thursday,
+      late_max_time_friday: req.max_time_friday,
+      late_max_time_saturday: req.max_time_saturday,
+      location_sunday: {
+        connect: {
+          location_id: req.location_sunday,
+        },
+      },
+      location_monday: {
+        connect: {
+          location_id: req.location_monday,
+        },
+      },
+      location_tuesday: {
+        connect: {
+          location_id: req.location_tuesday,
+        },
+      },
+      location_wednesday: {
+        connect: {
+          location_id: req.location_wednesday,
+        },
+      },
+      location_thursday: {
+        connect: {
+          location_id: req.location_thursday,
+        },
+      },
+      location_friday: {
+        connect: {
+          location_id: req.location_friday,
+        },
+      },
+      location_saturday: {
+        connect: {
+          location_id: req.location_saturday,
+        },
+      },
+    };
+
+    const existingAttendance = await prisma.attendance.findMany({
+      where: {
+        user_id: userData.user_id,
+      },
+    });
+
+    if (existingAttendance) {
+      await prisma.attendance.update({
+        data: newAttendance,
+        where: {
+          attendance_id: existingAttendance[0].attendance_id,
+        },
+      });
+    } else {
+      await prisma.attendance.create({
+        data: newAttendance,
+      });
+    }
+
+    return await this.getUserAttendance(c);
   }
 }

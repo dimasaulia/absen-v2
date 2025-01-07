@@ -1,0 +1,36 @@
+import { z, ZodType } from 'zod';
+
+export class AttendanceValidation {
+  static readonly ADD_ATTENDANCE: ZodType = z.object({
+    via: z.string().min(3),
+    kondisi: z.string().min(0),
+    attendance_on_sunday: z.boolean(),
+    attendance_on_monday: z.boolean(),
+    attendance_on_tuesday: z.boolean(),
+    attendance_on_wednesday: z.boolean(),
+    attendance_on_thursday: z.boolean(),
+    attendance_on_friday: z.boolean(),
+    attendance_on_saturday: z.boolean(),
+    min_time_sunday: z.number(),
+    min_time_monday: z.number(),
+    min_time_tuesday: z.number(),
+    min_time_wednesday: z.number(),
+    min_time_thursday: z.number(),
+    min_time_friday: z.number(),
+    min_time_saturday: z.number(),
+    max_time_sunday: z.number(),
+    max_time_monday: z.number(),
+    max_time_tuesday: z.number(),
+    max_time_wednesday: z.number(),
+    max_time_thursday: z.number(),
+    max_time_friday: z.number(),
+    max_time_saturday: z.number(),
+    location_sunday: z.number(),
+    location_monday: z.number(),
+    location_tuesday: z.number(),
+    location_wednesday: z.number(),
+    location_thursday: z.number(),
+    location_friday: z.number(),
+    location_saturday: z.number(),
+  });
+}

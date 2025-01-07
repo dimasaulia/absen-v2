@@ -20,6 +20,39 @@ export type AttendanceResponse = {
   attendance: Attendance[];
 };
 
+export type AttendanceRequest = {
+  via: 'WFS' | 'WFO';
+  kondisi: string;
+  attendance_on_sunday: boolean;
+  attendance_on_monday: boolean;
+  attendance_on_tuesday: boolean;
+  attendance_on_wednesday: boolean;
+  attendance_on_thursday: boolean;
+  attendance_on_friday: boolean;
+  attendance_on_saturday: boolean;
+  min_time_sunday: number;
+  min_time_monday: number;
+  min_time_tuesday: number;
+  min_time_wednesday: number;
+  min_time_thursday: number;
+  min_time_friday: number;
+  min_time_saturday: number;
+  max_time_sunday: number;
+  max_time_monday: number;
+  max_time_tuesday: number;
+  max_time_wednesday: number;
+  max_time_thursday: number;
+  max_time_friday: number;
+  max_time_saturday: number;
+  location_sunday: number;
+  location_monday: number;
+  location_tuesday: number;
+  location_wednesday: number;
+  location_thursday: number;
+  location_friday: number;
+  location_saturday: number;
+};
+
 export interface IUserWithAttendanceAndLocations {
   user_id: string;
   username: string;

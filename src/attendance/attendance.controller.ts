@@ -14,3 +14,12 @@ attendanceController.get('/', async (c) => {
     data: response,
   });
 });
+
+attendanceController.post('/', async (c) => {
+  const response = await AttendanceService.setUserAttendance(c);
+  c.status(200);
+  return c.json({
+    messages: 'Berhasil Menambahkan Data',
+    data: response,
+  });
+});
