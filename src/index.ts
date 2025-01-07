@@ -12,6 +12,7 @@ import {
 import { UserData } from './user/user.model';
 import { locationController } from './location/location.controller';
 import { activityController } from './activity/activity.controller';
+import { attendanceController } from './attendance/attendance.controller';
 
 const store = new CookieStore();
 
@@ -41,6 +42,7 @@ app.get('/', (c) => {
 app.route('/api/users/', userController);
 app.route('/api/locations/', locationController);
 app.route('/api/job/', activityController);
+app.route('/api/attendance/', attendanceController);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
