@@ -228,6 +228,11 @@ export class AttendanceService {
           location_id: req.location_saturday,
         },
       },
+      user: {
+        connect: {
+          user_id: userData.user_id,
+        },
+      },
     };
 
     const existingAttendance = await prisma.attendance.findMany({
