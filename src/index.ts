@@ -86,9 +86,9 @@ schedule('0 0 20 * * *', () => {
   wakeupAttendance('absen_pulang');
 });
 
-serve({ port: 8000, fetch: app.fetch });
+serve({ port: Number(Bun.env.PORT), fetch: app.fetch });
 
 export default {
-  port: 8000,
+  port: Number(Bun.env.PORT),
   fetch: app.fetch,
 };
