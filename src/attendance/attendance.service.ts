@@ -236,7 +236,7 @@ export class AttendanceService {
       },
     });
 
-    if (existingAttendance) {
+    if (existingAttendance.length > 0) {
       await prisma.attendance.update({
         data: newAttendance,
         where: {
