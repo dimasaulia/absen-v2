@@ -7,7 +7,6 @@ export class UserValidation {
     password: z.string().min(3).max(100),
     email: z.string().min(3).max(100),
     provider: z.string().min(3).max(100),
-    provider_id: z.string().min(3).max(100),
   });
 
   static readonly REGISTER_GOOGLE: ZodType = z.object({
