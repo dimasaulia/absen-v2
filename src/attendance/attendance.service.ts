@@ -11,7 +11,7 @@ import { AttendanceValidation } from './attendance.validation';
 
 export class AttendanceService {
   static async getUserAttendance(c: Context): Promise<AttendanceResponse> {
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
     const result: AttendanceResponse = { activity: [], attendance: [] };
     const daysOfWeek = [
       'Sunday',
@@ -74,42 +74,49 @@ export class AttendanceService {
             a.late_max_time_friday,
             a.late_max_time_saturday,
             -- Friday Location Details
+            l_fri.location_id AS "friday_location_id",
             l_fri.name AS "friday_name",
             l_fri.lokasi AS "friday_lokasi",
             l_fri.alamat AS "friday_alamat",
             l_fri.state AS "friday_state",
             l_fri.provinsi AS "friday_provinsi",
             -- Monday Location Details
+            l_mon.location_id AS "monday_location_id",
             l_mon.name AS "monday_name",
             l_mon.lokasi AS "monday_lokasi",
             l_mon.alamat AS "monday_alamat",
             l_mon.state AS "monday_state",
             l_mon.provinsi AS "monday_provinsi",
             -- Tuesday Location Details
+            l_tue.location_id AS "tuesday_location_id",
             l_tue.name AS "tuesday_name",
             l_tue.lokasi AS "tuesday_lokasi",
             l_tue.alamat AS "tuesday_alamat",
             l_tue.state AS "tuesday_state",
             l_tue.provinsi AS "tuesday_provinsi",
             -- Wednesday Location Details
+            l_wed.location_id AS "wednesday_location_id",
             l_wed.name AS "wednesday_name",
             l_wed.lokasi AS "wednesday_lokasi",
             l_wed.alamat AS "wednesday_alamat",
             l_wed.state AS "wednesday_state",
             l_wed.provinsi AS "wednesday_provinsi",
             -- Thursday Location Details
+            l_thu.location_id AS "thursday_location_id",
             l_thu.name AS "thursday_name",
             l_thu.lokasi AS "thursday_lokasi",
             l_thu.alamat AS "thursday_alamat",
             l_thu.state AS "thursday_state",
             l_thu.provinsi AS "thursday_provinsi",
             -- Saturday Location Details
+            l_sat.location_id AS "saturday_location_id",
             l_sat.name AS "saturday_name",
             l_sat.lokasi AS "saturday_lokasi",
             l_sat.alamat AS "saturday_alamat",
             l_sat.state AS "saturday_state",
             l_sat.provinsi AS "saturday_provinsi",
             -- Sunday Location Details
+            l_sun.location_id AS "sunday_location_id",
             l_sun.name AS "sunday_name",
             l_sun.lokasi AS "sunday_lokasi",
             l_sun.alamat AS "sunday_alamat",
@@ -134,8 +141,11 @@ export class AttendanceService {
       const day = daysOfWeek[i].toLocaleLowerCase();
       const lateMinTimeKey =
         `late_min_time_${day}` as keyof IUserWithAttendanceAndLocations;
+      const isActiveKey = `is_${day}` as keyof IUserWithAttendanceAndLocations;
       const lateMaxTimeKey =
         `late_max_time_${day}` as keyof IUserWithAttendanceAndLocations;
+      const dayLocationIdKey =
+        `${day}_location_id` as keyof IUserWithAttendanceAndLocations;
       const dayNameKey = `${day}_name` as keyof IUserWithAttendanceAndLocations;
       const dayLokasiKey =
         `${day}_lokasi` as keyof IUserWithAttendanceAndLocations;
@@ -150,7 +160,9 @@ export class AttendanceService {
         day: day,
         min_time: userAttendance[lateMinTimeKey] as Number,
         max_time: userAttendance[lateMaxTimeKey] as Number,
+        is_active: userAttendance[isActiveKey] as Boolean,
         location: {
+          id: userAttendance[dayLocationIdKey] as Number,
           name: userAttendance[dayNameKey] as string,
           state: userAttendance[dayStateKey] as string,
           alamat: userAttendance[dayAlamatKey] as string,
@@ -164,7 +176,7 @@ export class AttendanceService {
   }
 
   static async setUserAttendance(c: Context) {
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
     const req: AttendanceRequest = AttendanceValidation.ADD_ATTENDANCE.parse(
       await c.req.json()
     );

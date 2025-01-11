@@ -1,6 +1,7 @@
 import { JobActivityResponse } from '../activity/activity.model';
 
 export type DetailLocation = {
+  id: Number;
   name: String;
   state: String;
   alamat: String;
@@ -12,6 +13,7 @@ export type Attendance = {
   day: String;
   min_time: Number;
   max_time: Number;
+  is_active: Boolean;
   location: DetailLocation;
 };
 

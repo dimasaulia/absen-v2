@@ -13,7 +13,7 @@ import { JobActivityValidation, JobValidation } from './activity.validation';
 
 export class ActivityService {
   static async getUserJobActivity(c: Context): Promise<JobActivityResponse[]> {
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
     const jobActivities: JobActivityResponse[] = [];
 
     const activities = await prisma.jobActivity.findMany({
@@ -50,7 +50,7 @@ export class ActivityService {
     req: JobActivityRequest,
     c: Context
   ): Promise<JobActivityResponse> {
-    const userData = c.get('userData') as UserData;
+    const userData = (await c.get('userData')) as UserData;
 
     const request: JobActivityRequest =
       JobActivityValidation.ADD_JOB_ACTIVITY.parse(req);

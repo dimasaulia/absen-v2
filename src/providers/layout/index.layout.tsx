@@ -22,6 +22,10 @@ export default function Layout({
           type="text/javascript"
           src="https://cdn.jsdelivr.net/npm/toastify-js"
         ></script>
+        <script
+          type="text/javascript"
+          src="/public/js/util/flowbite.min.js"
+        ></script>
 
         <link rel="stylesheet" href={cssFile} />
       </head>

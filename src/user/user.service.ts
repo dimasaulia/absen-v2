@@ -163,7 +163,7 @@ export class UserService {
   }
 
   static async getUserDetail(c: Context) {
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
 
     const user = await prisma.user.findUnique({
       select: {
@@ -279,7 +279,7 @@ export class UserService {
     c: Context
   ): Promise<string> {
     const req: EofficeRequest = UserValidation.EOFFICE.parse(request);
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
 
     const [resp, _] = await userDoLogin(req.username, req.password);
 
@@ -304,7 +304,7 @@ export class UserService {
     const req: SetUserJobRequest = UserValidation.SET_USER_JOB.parse(
       await c.req.json()
     );
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
 
     const job = await prisma.job.count({ where: { job_id: +req.job_id } });
 

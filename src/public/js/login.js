@@ -18,8 +18,6 @@ buttonLogin.addEventListener('click', async (e) => {
 
   const dataResp = await resp.json();
 
-  console.log(resp.status);
-  console.log(dataResp);
   if (resp.status != 200) {
     Toastify({
       text: dataResp.errors,

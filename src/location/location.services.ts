@@ -9,7 +9,7 @@ import { LocationValidation } from './location.validation';
 export class LocationService {
   static async getUserLocation(c: Context): Promise<LocationResponse[]> {
     try {
-      const userData = c.get('userData') as UserData;
+      const userData = (await c.get('userData')) as UserData;
       const locations: LocationResponse[] = [];
 
       const userLocations = await prisma.location.findMany({
@@ -41,7 +41,7 @@ export class LocationService {
     locationData: AddLocationRequest
   ): Promise<String> {
     LocationValidation.ADD_LOCATION.parse(locationData);
-    const userData: UserData = c.get('userData');
+    const userData: UserData = await c.get('userData');
 
     await prisma.location.create({
       data: {

@@ -63,7 +63,7 @@ userController.get('/google/callback', async (c) => {
     provider: 'GOOGLE',
   });
 
-  return c.redirect('/');
+  return c.redirect('/dashboard/attendance');
 });
 
 userController.put('/eoffice', apiAuthMiddleware, async (c) => {
