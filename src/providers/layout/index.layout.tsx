@@ -9,7 +9,9 @@ export default function Layout({
   js?: string | string[];
 }) {
   const isDev = Bun.env.ENV == 'DEV' ? true : false;
-  const cssFile = isDev ? '/public/css/output.css' : '/public/css/main.css';
+  const cssFile = isDev
+    ? '/public/css/output.css'
+    : '/public/css/final-min.css';
   return (
     <html>
       <head>
