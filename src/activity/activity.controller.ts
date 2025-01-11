@@ -34,6 +34,7 @@ activityController.post('/activity', async (c) => {
   const req = (await c.req.json()) as JobActivityRequest;
 
   const response = await ActivityService.addJobActivity(req, c);
+  c.status(201);
   return c.json({
     message: 'Sukses Menambahkan Data',
     data: response,

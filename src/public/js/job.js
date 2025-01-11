@@ -19,7 +19,6 @@ setJob();
 buttonSave.addEventListener('click', async (e) => {
   e.preventDefault();
 
-  console.log('INPUT => ', inputJob.value);
   const resp = await fetch('/api/users/job', {
     headers: {
       'Content-Type': 'application/json',
@@ -54,7 +53,7 @@ buttonSave.addEventListener('click', async (e) => {
     }).showToast();
 
     setTimeout(() => {
-      // window.location = '/dashboard/attendance';
+      window.location = '/dashboard/attendance';
     }, 2000);
   }
 });

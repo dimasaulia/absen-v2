@@ -12,7 +12,7 @@ buttonLogin.addEventListener('click', async (e) => {
     method: 'POST',
     body: JSON.stringify({
       emailOrUsername: inputUsernameOrEmail.value,
-      password: inputUsernameOrEmail.value,
+      password: inputPassword.value,
     }),
   });
 

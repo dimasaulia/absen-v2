@@ -69,7 +69,7 @@ export class ActivityService {
         name: request.activity_name,
         job: {
           connect: {
-            job_id: request.job_id,
+            job_id: userData.job_id!,
           },
         },
         user: {

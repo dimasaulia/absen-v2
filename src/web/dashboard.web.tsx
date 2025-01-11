@@ -13,6 +13,7 @@ import SidebarLayout from '../providers/layout/sidebar.layout';
 import EofficePage from '../providers/page/eoffice.page';
 import { ActivityService } from '../activity/activity.service';
 import JobPage from '../providers/page/job.page';
+import ActivityPage from '../providers/page/activity.page';
 
 export const dashboardWeb = new Hono();
 
@@ -54,6 +55,23 @@ dashboardWeb.get(
       <Layout js={'/public/js/attendance.js'}>
         <SidebarLayout>
           <AttendancePage location={location} />
+        </SidebarLayout>
+      </Layout>
+    );
+  }
+);
+
+dashboardWeb.get(
+  '/activity',
+  webEofficeMiddleware,
+  webJobMiddleware,
+  async (c) => {
+    const userActivity = await ActivityService.getUserJobActivity(c);
+
+    return c.html(
+      <Layout js={'/public/js/activity.js'}>
+        <SidebarLayout>
+          <ActivityPage activity={userActivity} />
         </SidebarLayout>
       </Layout>
     );
