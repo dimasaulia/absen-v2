@@ -208,7 +208,7 @@ export class UserService {
     url.searchParams.set('client_id', googleClientId);
     url.searchParams.set('prompt', 'select_account');
 
-    console.log('GOOGLE AUTH URL => ', url);
+    logger.info(`GOOGLE AUTH URL => ${url}`);
 
     setCookie(c, 'google_oauth2_state', googleOAuth2State, {
       httpOnly: true,

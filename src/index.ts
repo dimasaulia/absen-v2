@@ -28,6 +28,10 @@ type Variables = {
 
 const app = new Hono<{ Variables: Variables }>();
 
+app.use(async (c, next) => {
+  logger.info(`Request Url: ${c.req.url}`);
+  return next();
+});
 app.use(
   '*',
   sessionMiddleware({
