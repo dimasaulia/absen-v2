@@ -68,11 +68,11 @@ userController.get('/google/callback', async (c) => {
 
 userController.put('/eoffice', apiAuthMiddleware, async (c) => {
   const req = (await c.req.json()) as EofficeRequest;
-  const response = await UserService.syncEoffice(req, c);
+  const [resp, isSuccess] = await UserService.syncEoffice(req, c);
 
-  c.status(200);
+  c.status(isSuccess ? 200 : 400);
   return c.json({
-    message: response,
+    message: resp,
   });
 });
 

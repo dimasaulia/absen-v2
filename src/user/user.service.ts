@@ -277,7 +277,7 @@ export class UserService {
   static async syncEoffice(
     request: EofficeRequest,
     c: Context
-  ): Promise<string> {
+  ): Promise<[string, Boolean]> {
     const req: EofficeRequest = UserValidation.EOFFICE.parse(request);
     const userData: UserData = await c.get('userData');
 
@@ -296,8 +296,8 @@ export class UserService {
     }
 
     return resp
-      ? 'Sukses Melakukan Integrasi Ke Eoffice'
-      : 'Gagal Melakukan Integrasi Ke Eoffice';
+      ? ['Sukses Melakukan Integrasi Ke Eoffice', true]
+      : ['Gagal Melakukan Integrasi Ke Eoffice', false];
   }
 
   static async setJob(c: Context): Promise<UserResponse> {

@@ -59,7 +59,7 @@ app.get(
 );
 
 app.get('/', async (c) => {
-  return c.redirect('/dashboard');
+  return c.redirect('/dashboard/attendance');
 });
 app.route('/dashboard', dashboardWeb);
 app.route('/auth', authWeb);

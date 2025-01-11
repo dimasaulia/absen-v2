@@ -52,3 +52,10 @@ export const webAuthMiddleware = async (c: Context, next: Next) => {
   // Proceed to the next middleware or main handler
   await next();
 };
+
+export const webEofficeMiddleware = async (c: Context, next: Next) => {
+  const userData: UserData = await c.get('userData');
+  const isEofficeSync = await UserServiceMiddleware.verifyEoffice(userData);
+  if (!isEofficeSync) return c.redirect('/dashboard/eoffice');
+  return next();
+};

@@ -10,7 +10,7 @@ export default function AttendancePage({
   location: SelectLocation[];
 }) {
   return (
-    <SidebarLayout>
+    <>
       <h1 class={'mb-4'}>Atur Waktu Absensi</h1>
       <p class={'mb-6'}>
         Setiap hari proses absensi dapat diatur untuk berjalan pada waktu dan
@@ -57,6 +57,6 @@ export default function AttendancePage({
 
         <Button buttonName="button-save" placeholder="Save" />
       </form>
-    </SidebarLayout>
+    </>
   );
 }
