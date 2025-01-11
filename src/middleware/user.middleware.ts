@@ -4,10 +4,9 @@ import { HTTPException } from 'hono/http-exception';
 import { verify } from 'hono/jwt';
 import { UserData, UserResponse } from '../user/user.model';
 import { prisma } from '../providers/database.providers';
+import { UserServiceMiddleware } from './user.service.middleware';
 
-export const authMiddleware = async (c: Context, next: Next) => {
-  const dateNow = new Date();
-
+export const apiAuthMiddleware = async (c: Context, next: Next) => {
   const authorizationCookie = getCookie(c, 'Authorization');
   if (!authorizationCookie) {
     throw new HTTPException(401, {
@@ -20,38 +19,33 @@ export const authMiddleware = async (c: Context, next: Next) => {
     Bun.env.JWT_SECRET!
   )) as UserResponse;
 
-  const user = await prisma.user.findUnique({
-    select: {
-      user_id: true,
-      username: true,
-      email: true,
-      password: true,
-      full_name: true,
-      provider: true,
-      job_id: true,
-      role: {
-        select: {
-          name: true,
-        },
-      },
-    },
-    where: {
-      username: decodedPayload.username,
-    },
-  });
+  const userData = UserServiceMiddleware.verifyUser(decodedPayload);
 
-  if (!user)
+  if (userData === null)
     throw new HTTPException(401, {
       message: 'User Tidak Ditemukan',
     });
 
-  const userData: UserData = {
-    user_id: user.user_id,
-    username: user.username,
-    name: user.full_name,
-    role: user.role.name,
-    job_id: user.job_id,
-  };
+  c.set('userData', userData);
+
+  // Proceed to the next middleware or main handler
+  await next();
+};
+
+export const webAuthMiddleware = async (c: Context, next: Next) => {
+  const authorizationCookie = getCookie(c, 'Authorization');
+  if (!authorizationCookie) {
+    return c.redirect('/auth/login');
+  }
+
+  const decodedPayload = (await verify(
+    authorizationCookie,
+    Bun.env.JWT_SECRET!
+  )) as UserResponse;
+
+  const userData = UserServiceMiddleware.verifyUser(decodedPayload);
+
+  if (userData === null) return c.redirect('/auth/login');
 
   c.set('userData', userData);
 

@@ -17,16 +17,18 @@ import { generateState, OAuth2Client } from 'oslo/oauth2';
 import { getCookie, setCookie } from 'hono/cookie';
 import {
   googleOAuth2Client,
-  redirectLoginEndpoint,
-  redirectRegisterEndpoint,
+  redirectGoogleAuthEndpoint,
   tokenEndpoint,
 } from '../providers/gapi.providers';
 import { decode, sign, verify } from 'hono/jwt';
 import { userDoLogin } from '../providers/attendance.providers';
 import { encryptText } from '../providers/encription.providers';
+import { User } from '@prisma/client';
 
 export class UserService {
-  static async register(request: RegisterUserRequest): Promise<UserResponse> {
+  static async register(
+    request: RegisterUserRequest
+  ): Promise<UserResponse | null> {
     // Validasi request
     if (request.provider === 'MANUAL') {
       request = UserValidation.REGISTER.parse(request);
@@ -41,7 +43,7 @@ export class UserService {
       where: { OR: [{ username: request.username }, { email: request.email }] },
     });
 
-    if (totalUser != 0) {
+    if (totalUser != 0 && request.provider == 'MANUAL') {
       throw new HTTPException(400, {
         message: 'User already exists',
       });
@@ -54,25 +56,28 @@ export class UserService {
     });
 
     // Save ke database
-    const newUser = await prisma.user.create({
-      data: {
-        username: request.username,
-        password: request.password,
-        email: request.email,
-        full_name: request.name,
-        password_updated_at: new Date(Date.now() - 1000),
-        provider: request.provider,
-        provider_id: request.provider_id,
-        role: {
-          connectOrCreate: {
-            where: { name: 'BASE' },
-            create: { name: 'BASE' },
+    let user: User | null = null;
+    if (totalUser == 0) {
+      user = await prisma.user.create({
+        data: {
+          username: request.username,
+          password: request.password,
+          email: request.email,
+          full_name: request.name,
+          password_updated_at: new Date(Date.now() - 1000),
+          provider: request.provider,
+          provider_id: request.provider_id,
+          role: {
+            connectOrCreate: {
+              where: { name: 'BASE' },
+              create: { name: 'BASE' },
+            },
           },
         },
-      },
-    });
+      });
+    }
 
-    return toUserResponse(newUser);
+    return user ? toUserResponse(user) : null;
   }
 
   static async login(
@@ -85,6 +90,7 @@ export class UserService {
     }
 
     let isUserMatch: boolean = false;
+    console.log('EMAIL => ', request.emailOrUsername);
     const user = await prisma.user.findMany({
       select: {
         username: true,
@@ -111,14 +117,14 @@ export class UserService {
         message: 'Username, email or password not match, or no user',
       });
     }
-    if (user[0].provider === 'MANUAL') {
+    if (request.provider === 'MANUAL') {
       isUserMatch = await Bun.password.verify(
         request.password!,
         user[0].password!
       );
     }
 
-    if (user[0].provider === 'GOOGLE') {
+    if (request.provider === 'GOOGLE') {
       isUserMatch = true;
     }
 
@@ -147,6 +153,15 @@ export class UserService {
     return response;
   }
 
+  static async logout(c: Context) {
+    setCookie(c, 'Authorization', '', {
+      httpOnly: true,
+      secure: true,
+      path: '/',
+      expires: new Date(Date.now() + 1), // Expires in 1 day
+    });
+  }
+
   static async getUserDetail(c: Context) {
     const userData: UserData = c.get('userData');
 
@@ -172,16 +187,17 @@ export class UserService {
   }
 
   static async registerWithGoogle(c: Context): Promise<string> {
-    const isLogin = String(c.req.queries('process')) === 'login' ? true : false;
     const googleClientId = Bun.env.GOOGLE_CLIENT_ID || '';
     const googleBaseUrl: string =
       'https://accounts.google.com/o/oauth2/v2/auth';
     const protocol: string =
-      new URL(c.req.url).protocol === 'https:' ? 'https://' : 'http://';
+      Bun.env.ENV === 'PROD'
+        ? 'https://'
+        : new URL(c.req.url).protocol === 'https:'
+        ? 'https://'
+        : 'http://';
     const host: string = c.req.header()['host'];
-    const redirectUrl = isLogin
-      ? `${protocol}${host}${redirectLoginEndpoint}`
-      : `${protocol}${host}${redirectRegisterEndpoint}`;
+    const redirectUrl = `${protocol}${host}${redirectGoogleAuthEndpoint}`;
     const googleOAuth2State = generateState();
 
     const url = new URL(googleBaseUrl);
@@ -191,6 +207,8 @@ export class UserService {
     url.searchParams.set('state', googleOAuth2State);
     url.searchParams.set('client_id', googleClientId);
     url.searchParams.set('prompt', 'select_account');
+
+    console.log('GOOGLE AUTH URL => ', url);
 
     setCookie(c, 'google_oauth2_state', googleOAuth2State, {
       httpOnly: true,
@@ -211,9 +229,7 @@ export class UserService {
     const protocol: string =
       new URL(c.req.url).protocol === 'https:' ? 'https://' : 'http://';
     const host: string = c.req.header()['host'];
-    const redirectUrl = isLogin
-      ? `${protocol}${host}${redirectLoginEndpoint}`
-      : `${protocol}${host}${redirectRegisterEndpoint}`;
+    const redirectUrl = `${protocol}${host}${redirectGoogleAuthEndpoint}`;
 
     const googleOAuth2State = getCookie(c, 'google_oauth2_state');
 

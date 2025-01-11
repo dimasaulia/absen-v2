@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
+import { serveStatic } from 'hono/bun';
 import { userController } from './user/user.controller';
+import { jsxRenderer, useRequestContext } from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
 import { ZodError } from 'zod';
 import { serve } from 'bun';
@@ -16,6 +18,8 @@ import { attendanceController } from './attendance/attendance.controller';
 import { logger } from './providers/logging.providers';
 import { schedule } from 'node-cron';
 import { wakeupAttendance } from './providers/attendance.providers';
+import { dashboardWeb } from './web/dashboard.web';
+import { authWeb } from './web/auth.web';
 const store = new CookieStore();
 
 type Variables = {
@@ -37,9 +41,24 @@ app.use(
   })
 );
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!');
+app.get(
+  '/public/*',
+  serveStatic({
+    root: './src/',
+    onFound(path, c) {
+      // c.header('Cache-Control', `public, immutable, max-age=31536000`);
+    },
+    onNotFound: (path, c) => {
+      console.log(`${path} is not found, you access ${c.req.path}`);
+    },
+  })
+);
+
+app.get('/', async (c) => {
+  return c.redirect('/dashboard');
 });
+app.route('/dashboard', dashboardWeb);
+app.route('/auth', authWeb);
 
 app.route('/api/users/', userController);
 app.route('/api/locations/', locationController);

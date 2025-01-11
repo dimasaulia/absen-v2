@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/user.middleware';
+import { apiAuthMiddleware } from '../middleware/user.middleware';
 import { LocationService } from './location.services';
 import { AddLocationRequest } from './location.model';
 
 export const locationController = new Hono();
-locationController.use(authMiddleware);
+locationController.use(apiAuthMiddleware);
 
 locationController.get('/', async (c) => {
   const response = await LocationService.getUserLocation(c);

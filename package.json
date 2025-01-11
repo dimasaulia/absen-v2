@@ -1,5 +1,6 @@
 {
   "name": "absen-otomatis-v2",
+  "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "db:init": "bunx prisma init",
@@ -8,20 +9,30 @@
     "db:generate": "bunx prisma generate",
     "db:studio": "bunx prisma studio",
     "db:reset": "bunx prisma migrate reset",
-    "db:seed": "bunx prisma db seed"
+    "db:seed": "bunx prisma db seed",
+    "css:init": "bunx tailwindcss init",
+    "css:dev": "bunx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/output.css --watch",
+    "css:build": "bunx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/final.css",
+    "css:minify": "bunx postcss ./src/public/css/final.css -o ./src/public/css/final-min.css"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cssnano": "^7.0.6",
+    "flowbite": "^2.5.2",
     "hono": "^4.6.10",
     "hono-sessions": "^0.7.0",
+    "imagesloaded": "^5.0.0",
+    "masonry-layout": "^4.2.2",
     "node-cron": "^3.0.3",
     "oslo": "^1.2.1",
+    "postcss-cli": "^11.0.0",
     "winston": "^3.17.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node-cron": "^3.0.11",
     "@types/bun": "latest",
-    "prisma": "^5.22.0"
+    "@types/node-cron": "^3.0.11",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.15"
   }
 }

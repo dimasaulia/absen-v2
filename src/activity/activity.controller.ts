@@ -1,11 +1,11 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/user.middleware';
+import { apiAuthMiddleware } from '../middleware/user.middleware';
 import { ActivityService } from './activity.service';
 import { JobActivityRequest, JobRequest } from './activity.model';
 import { UserData } from '../user/user.model';
 
 export const activityController = new Hono();
-activityController.use(authMiddleware);
+activityController.use(apiAuthMiddleware);
 
 activityController.get('/', async (c) => {
   const response = await ActivityService.getAllJob(c);

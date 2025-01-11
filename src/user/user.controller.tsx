@@ -6,7 +6,7 @@ import {
   RegisterUserRequest,
 } from './user.model';
 import { UserService } from './user.service';
-import { authMiddleware } from '../middleware/user.middleware';
+import { apiAuthMiddleware } from '../middleware/user.middleware';
 
 export const userController = new Hono();
 
@@ -20,7 +20,7 @@ userController.post('/', async (c) => {
   });
 });
 
-userController.get('/', authMiddleware, async (c) => {
+userController.get('/', apiAuthMiddleware, async (c) => {
   const response = await UserService.getUserDetail(c);
   return c.json({
     data: response,
@@ -43,7 +43,7 @@ userController.get('/google', async (c) => {
   return c.redirect(url.toString());
 });
 
-userController.get('/google/register/callback', async (c) => {
+userController.get('/google/callback', async (c) => {
   const user = await UserService.getGoogleInfo(false, c);
   const username =
     user.name.toLowerCase().replaceAll(' ', '_') +
@@ -59,16 +59,6 @@ userController.get('/google/register/callback', async (c) => {
   });
 
   await UserService.login(c, {
-    emailOrUsername: username,
-    provider: 'GOOGLE',
-  });
-
-  return c.redirect('/');
-});
-
-userController.get('/google/login/callback', async (c) => {
-  const user = await UserService.getGoogleInfo(true, c);
-  await UserService.login(c, {
     emailOrUsername: user.email,
     provider: 'GOOGLE',
   });
@@ -76,7 +66,7 @@ userController.get('/google/login/callback', async (c) => {
   return c.redirect('/');
 });
 
-userController.put('/eoffice', authMiddleware, async (c) => {
+userController.put('/eoffice', apiAuthMiddleware, async (c) => {
   const req = (await c.req.json()) as EofficeRequest;
   const response = await UserService.syncEoffice(req, c);
 
@@ -86,10 +76,14 @@ userController.put('/eoffice', authMiddleware, async (c) => {
   });
 });
 
-userController.put('/job', authMiddleware, async (c) => {
+userController.put('/job', apiAuthMiddleware, async (c) => {
   const resp = await UserService.setJob(c);
   return c.json({
     message: 'Sukses Memperbaharui Pekerjaan User',
     data: resp,
   });
+});
+
+userController.get('/logout', async (c) => {
+  UserService.logout(c);
 });

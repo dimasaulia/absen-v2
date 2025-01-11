@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
     "strict": true,
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "lib": ["ESNext", "DOM"],
+  "types": ["vite/client"]
 }

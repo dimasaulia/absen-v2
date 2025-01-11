@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/user.middleware';
+import { apiAuthMiddleware } from '../middleware/user.middleware';
 import { AttendanceService } from './attendance.service';
 
 export const attendanceController = new Hono();
 
-attendanceController.use(authMiddleware);
+attendanceController.use(apiAuthMiddleware);
 
 attendanceController.get('/', async (c) => {
   const response = await AttendanceService.getUserAttendance(c);
