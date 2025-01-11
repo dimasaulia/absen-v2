@@ -227,7 +227,11 @@ export class UserService {
     const { state, code } = c.req.query();
 
     const protocol: string =
-      new URL(c.req.url).protocol === 'https:' ? 'https://' : 'http://';
+      Bun.env.ENV === 'PROD'
+        ? 'https://'
+        : new URL(c.req.url).protocol === 'https:'
+        ? 'https://'
+        : 'http://';
     const host: string = c.req.header()['host'];
     const redirectUrl = `${protocol}${host}${redirectGoogleAuthEndpoint}`;
 
