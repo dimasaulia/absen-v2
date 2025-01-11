@@ -1,13 +1,13 @@
 import Button from '../component/button.comp';
 import AttendanceCard from '../component/card.attendance.comp';
-import { SelectLocation } from '../component/select.input';
+import { SelectOption } from '../component/select.input';
 import TextInput from '../component/text.input.comp';
 import SidebarLayout from '../layout/sidebar.layout';
 
 export default function AttendancePage({
   location,
 }: {
-  location: SelectLocation[];
+  location: SelectOption[];
 }) {
   return (
     <>

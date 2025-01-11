@@ -172,6 +172,7 @@ export class UserService {
         password: true,
         full_name: true,
         provider: true,
+        job_id: true,
         role: {
           select: {
             name: true,

@@ -48,4 +48,16 @@ export class UserServiceMiddleware {
     if (!user?.eoffice_password || !user?.eoffice_password) return false;
     return true;
   }
+
+  static async verifyJob(u: UserResponse): Promise<Boolean> {
+    const user = await prisma.user.findUnique({
+      select: {
+        job_id: true,
+      },
+      where: { username: u.username },
+    });
+
+    if (!user?.job_id) return false;
+    return true;
+  }
 }

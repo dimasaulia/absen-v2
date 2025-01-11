@@ -1,4 +1,4 @@
-import SelectInput, { SelectLocation } from './select.input';
+import SelectInput, { SelectOption } from './select.input';
 import TextInput from './text.input.comp';
 
 export default function AttendanceCard({
@@ -8,7 +8,7 @@ export default function AttendanceCard({
 }: {
   id: string;
   title: string;
-  location: SelectLocation[];
+  location: SelectOption[];
 }) {
   return (
     <div

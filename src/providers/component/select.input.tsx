@@ -1,4 +1,4 @@
-export type SelectLocation = {
+export type SelectOption = {
   id: number;
   value: string;
 };
@@ -7,7 +7,7 @@ export default function SelectInput({
   data,
 }: {
   id: string;
-  data: SelectLocation[];
+  data: SelectOption[];
 }) {
   return (
     <select
