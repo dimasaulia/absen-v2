@@ -96,7 +96,7 @@ app.onError(async (err, c) => {
 logger.info('Set Scheduled Absen Masuk Running On 08.00 WIB');
 schedule('0 0 8 * * *', () => {
   logger.info(`Cron Job For Absen Masuk at ${new Date()}`);
-  wakeupAttendance('absen_pulang');
+  wakeupAttendance('absen_masuk');
 });
 
 logger.info('Set Scheduled Absen Pulang Running On 20.00 WIB');
