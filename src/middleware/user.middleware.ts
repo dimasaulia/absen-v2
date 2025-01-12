@@ -5,6 +5,10 @@ import { verify } from 'hono/jwt';
 import { UserData, UserResponse } from '../user/user.model';
 import { prisma } from '../providers/database.providers';
 import { UserServiceMiddleware } from './user.service.middleware';
+import {
+  JwtTokenExpired,
+  JwtTokenSignatureMismatched,
+} from 'hono/utils/jwt/types';
 
 export const apiAuthMiddleware = async (c: Context, next: Next) => {
   const authorizationCookie = getCookie(c, 'Authorization');
@@ -33,24 +37,36 @@ export const apiAuthMiddleware = async (c: Context, next: Next) => {
 };
 
 export const webAuthMiddleware = async (c: Context, next: Next) => {
-  const authorizationCookie = getCookie(c, 'Authorization');
-  if (!authorizationCookie) {
-    return c.redirect('/auth/login');
+  try {
+    const authorizationCookie = getCookie(c, 'Authorization');
+    if (!authorizationCookie) {
+      return c.redirect('/auth/login');
+    }
+
+    const decodedPayload = (await verify(
+      authorizationCookie,
+      Bun.env.JWT_SECRET!
+    )) as UserResponse;
+
+    const userData = UserServiceMiddleware.verifyUser(decodedPayload);
+
+    if (userData === null) return c.redirect('/auth/login');
+
+    c.set('userData', userData);
+
+    // Proceed to the next middleware or main handler
+    await next();
+  } catch (err) {
+    if (
+      err instanceof JwtTokenExpired ||
+      err instanceof JwtTokenSignatureMismatched
+    ) {
+      return c.redirect('/auth/login');
+    }
+    throw new HTTPException(401, {
+      message: String(err),
+    });
   }
-
-  const decodedPayload = (await verify(
-    authorizationCookie,
-    Bun.env.JWT_SECRET!
-  )) as UserResponse;
-
-  const userData = UserServiceMiddleware.verifyUser(decodedPayload);
-
-  if (userData === null) return c.redirect('/auth/login');
-
-  c.set('userData', userData);
-
-  // Proceed to the next middleware or main handler
-  await next();
 };
 
 export const webEofficeMiddleware = async (c: Context, next: Next) => {

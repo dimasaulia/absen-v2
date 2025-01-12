@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
+    "start": "bun build ./src/index.ts --outdir ./dist --target bun && bun run ./dist/index.js",
     "db:init": "bunx prisma init",
     "db:migrate": "bunx prisma migrate dev",
     "db:deploy": "bunx prisma migrate deploy",

@@ -4,7 +4,7 @@ import { userController } from './user/user.controller';
 import { jsxRenderer, useRequestContext } from 'hono/jsx-renderer';
 import { HTTPException } from 'hono/http-exception';
 import { ZodError } from 'zod';
-import { serve } from 'bun';
+// import { serve } from 'bun';
 import { CookieStore, sessionMiddleware } from 'hono-sessions';
 import { generateState, OAuth2Client } from 'oslo/oauth2';
 import {
@@ -109,7 +109,7 @@ schedule('0 0 20 * * *', () => {
   wakeupAttendance('absen_pulang');
 });
 
-serve({ port: Number(Bun.env.PORT), fetch: app.fetch });
+// serve({ port: Number(Bun.env.PORT), fetch: app.fetch });
 
 export default {
   port: Number(Bun.env.PORT),
