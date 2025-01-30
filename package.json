@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "start": "bun build ./src/index.ts --outdir ./.dist --target bun && bun run ./.dist/index.js",
+    "start": "bunx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/final.css && bunx postcss ./src/public/css/final.css -o ./src/public/css/final-min.css && bun build --sourcemap ./src/index.ts --outdir ./.dist --target bun && bun run ./.dist/index.js",
     "db:init": "bunx prisma init",
     "db:migrate": "bunx prisma migrate dev",
     "db:deploy": "bunx prisma migrate deploy",

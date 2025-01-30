@@ -109,17 +109,18 @@ const default_loc = {
 export async function wakeupAttendance(
   attandendType: 'absen_masuk' | 'absen_pulang'
 ) {
-  const currentDay = new Date()
-    .toLocaleString('en-US', { weekday: 'long' })
-    .toLowerCase();
-  const activity = await prisma.jobActivity.findMany({
-    select: { name: true, user_id: true, job: { select: { name: true } } },
-  });
-  const bulkData: IPrisma.SchedulerCreateManyInput[] = [];
+  try {
+    const currentDay = new Date()
+      .toLocaleString('en-US', { weekday: 'long' })
+      .toLowerCase();
+    const activity = await prisma.jobActivity.findMany({
+      select: { name: true, user_id: true, job: { select: { name: true } } },
+    });
+    const bulkData: IPrisma.SchedulerCreateManyInput[] = [];
 
-  const userAttandend = await prisma.$queryRaw<
-    IUserWithAttendanceAndLocations[]
-  >(IPrisma.sql`
+    const userAttandend = await prisma.$queryRaw<
+      IUserWithAttendanceAndLocations[]
+    >(IPrisma.sql`
     SELECT 
         u.user_id,
         u.username, 
@@ -202,88 +203,92 @@ export async function wakeupAttendance(
     LEFT JOIN "Location" l_sun ON l_sun.location_id = a.location_sunday_id;
   `);
 
-  for (let i = 0; i < userAttandend.length; i++) {
-    const user = userAttandend[i];
-    const userActivity = activity.filter(
-      (d) =>
-        d.job?.name == user.job_name &&
-        (d.user_id == null || d.user_id == user.user_id)
-    );
-    const randomActivity =
-      userActivity[Math.floor(Math.random() * userActivity.length)]?.name ||
-      'Doing something';
-
-    logger.info(`PROCESSING ${user.username}`);
-
-    const isDoAttandence =
-      `is_${currentDay}` as keyof IUserWithAttendanceAndLocations;
-    const lateMinTimeKey =
-      `late_min_time_${currentDay}` as keyof IUserWithAttendanceAndLocations;
-    const lateMaxTimeKey =
-      `late_max_time_${currentDay}` as keyof IUserWithAttendanceAndLocations;
-    const dayNameKey =
-      `${currentDay}_name` as keyof IUserWithAttendanceAndLocations;
-    const dayLokasiKey =
-      `${currentDay}_lokasi` as keyof IUserWithAttendanceAndLocations;
-    const dayAlamatKey =
-      `${currentDay}_alamat` as keyof IUserWithAttendanceAndLocations;
-    const dayStateKey =
-      `${currentDay}_state` as keyof IUserWithAttendanceAndLocations;
-    const dayProvinsiKey =
-      `${currentDay}_provinsi` as keyof IUserWithAttendanceAndLocations;
-    const is_do_attandence = user[isDoAttandence] as boolean;
-    const loc_name = user[dayNameKey];
-    const loc_lokasi = user[dayLokasiKey] || default_loc.lokasi;
-    const loc_alamat = user[dayAlamatKey] || default_loc.alamat;
-    const loc_state = user[dayStateKey] || default_loc.state;
-    const loc_provinsi = user[dayProvinsiKey] || default_loc.provinsi;
-    const late_min_time = Number(user[lateMinTimeKey]);
-    const late_max_time = Number(user[lateMaxTimeKey]);
-    const randomTime = getRandomMinutes(late_min_time, late_max_time);
-    const scheduleTime = new Date(new Date().getTime() + randomTime * 60_000);
-
-    const absenPayload: ISchedulePayload = {
-      via: 'WFS',
-      state: String(loc_state),
-      alamat: String(loc_alamat),
-      lokasi: String(loc_lokasi),
-      provinsi: String(loc_provinsi),
-      kondisi: 'Sehat',
-      aktivitas: String(randomActivity),
-    };
-
-    if (is_do_attandence == true) {
-      logger.info(
-        `Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
+    for (let i = 0; i < userAttandend.length; i++) {
+      const user = userAttandend[i];
+      const userActivity = activity.filter(
+        (d) =>
+          d.job?.name == user.job_name &&
+          (d.user_id == null || d.user_id == user.user_id)
       );
+      const randomActivity =
+        userActivity[Math.floor(Math.random() * userActivity.length)]?.name ||
+        'Doing something';
 
-      const taskId = crypto.randomUUID();
-      Scheduler.setTask(
-        scheduleTime,
-        async () => {
-          userDoLogin(
-            user.eoffice_username,
-            decryptText(user.eoffice_password)
-          ).then((v) => {
-            userDoAttandend({
-              attandendType: attandendType,
-              attandendData: absenPayload,
-              cookies: String(v[1]),
-              taskId: taskId,
+      logger.info(`PROCESSING ${user.username}`);
+
+      const isDoAttandence =
+        `is_${currentDay}` as keyof IUserWithAttendanceAndLocations;
+      const lateMinTimeKey =
+        `late_min_time_${currentDay}` as keyof IUserWithAttendanceAndLocations;
+      const lateMaxTimeKey =
+        `late_max_time_${currentDay}` as keyof IUserWithAttendanceAndLocations;
+      const dayNameKey =
+        `${currentDay}_name` as keyof IUserWithAttendanceAndLocations;
+      const dayLokasiKey =
+        `${currentDay}_lokasi` as keyof IUserWithAttendanceAndLocations;
+      const dayAlamatKey =
+        `${currentDay}_alamat` as keyof IUserWithAttendanceAndLocations;
+      const dayStateKey =
+        `${currentDay}_state` as keyof IUserWithAttendanceAndLocations;
+      const dayProvinsiKey =
+        `${currentDay}_provinsi` as keyof IUserWithAttendanceAndLocations;
+      const is_do_attandence = user[isDoAttandence] as boolean;
+      const loc_name = user[dayNameKey];
+      const loc_lokasi = user[dayLokasiKey] || default_loc.lokasi;
+      const loc_alamat = user[dayAlamatKey] || default_loc.alamat;
+      const loc_state = user[dayStateKey] || default_loc.state;
+      const loc_provinsi = user[dayProvinsiKey] || default_loc.provinsi;
+      const late_min_time = Number(user[lateMinTimeKey]);
+      const late_max_time = Number(user[lateMaxTimeKey]);
+      const randomTime = getRandomMinutes(late_min_time, late_max_time);
+      const scheduleTime = new Date(new Date().getTime() + randomTime * 60_000);
+
+      const absenPayload: ISchedulePayload = {
+        via: 'WFS',
+        state: String(loc_state),
+        alamat: String(loc_alamat),
+        lokasi: String(loc_lokasi),
+        provinsi: String(loc_provinsi),
+        kondisi: 'Sehat',
+        aktivitas: String(randomActivity),
+      };
+
+      if (is_do_attandence == true) {
+        logger.info(
+          `Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
+        );
+
+        const taskId = crypto.randomUUID();
+        Scheduler.setTask(
+          scheduleTime,
+          async () => {
+            userDoLogin(
+              user.eoffice_username,
+              decryptText(user.eoffice_password)
+            ).then((v) => {
+              userDoAttandend({
+                attandendType: attandendType,
+                attandendData: absenPayload,
+                cookies: String(v[1]),
+                taskId: taskId,
+              });
             });
-          });
-        },
-        taskId
-      );
+          },
+          taskId
+        );
 
-      bulkData.push({
-        task_id: taskId,
-        task_time: scheduleTime,
-        user_id: user.user_id,
-        task_data: JSON.parse(JSON.stringify(absenPayload)),
-      });
+        bulkData.push({
+          task_id: taskId,
+          task_time: scheduleTime,
+          user_id: user.user_id,
+          task_data: JSON.parse(JSON.stringify(absenPayload)),
+        });
+      }
     }
-  }
 
-  await prisma.scheduler.createMany({ data: bulkData });
+    await prisma.scheduler.createMany({ data: bulkData });
+  } catch (error) {
+    logger.error('Wakeup Attendance Failed; Error detail:');
+    logger.error(error);
+  }
 }
