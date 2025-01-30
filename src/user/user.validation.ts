@@ -20,6 +20,7 @@ export class UserValidation {
   static readonly LOGIN: ZodType = z.object({
     emailOrUsername: z.string().min(1),
     password: z.string().min(1),
+    provider: z.string().min(1),
   });
 
   static readonly EOFFICE: ZodType = z.object({
