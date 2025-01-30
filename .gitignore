@@ -6,3 +6,5 @@ node_modules/
 *.out
 .dist
 dist
+./src/public/css/final.css
+./src/public/css/final-min.css
