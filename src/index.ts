@@ -20,6 +20,7 @@ import { schedule } from 'node-cron';
 import { wakeupAttendance } from './providers/attendance.providers';
 import { dashboardWeb } from './web/dashboard.web';
 import { authWeb } from './web/auth.web';
+import { monitoringController } from './monitoring/monitoring.controller';
 const store = new CookieStore();
 
 type Variables = {
@@ -68,6 +69,7 @@ app.route('/api/users/', userController);
 app.route('/api/locations/', locationController);
 app.route('/api/job/', activityController);
 app.route('/api/attendance/', attendanceController);
+app.route('/api/health/', monitoringController);
 
 app.onError(async (err, c) => {
   if (err instanceof HTTPException) {
