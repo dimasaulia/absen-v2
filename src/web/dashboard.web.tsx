@@ -15,13 +15,14 @@ import { ActivityService } from '../activity/activity.service';
 import JobPage from '../providers/page/job.page';
 import ActivityPage from '../providers/page/activity.page';
 import LoctionPage from '../providers/page/location.page';
+import { navbarPath } from '../providers/path.providers';
 
 export const dashboardWeb = new Hono();
 
 dashboardWeb.use(webAuthMiddleware);
 dashboardWeb.get('/eoffice', async (c) => {
   return c.html(
-    <Layout js={'/public/js/eoffice.js'}>
+    <Layout js={[navbarPath, '/public/js/eoffice.js']}>
       <SidebarLayout>
         <EofficePage />
       </SidebarLayout>
@@ -35,7 +36,7 @@ dashboardWeb.get('/job', webEofficeMiddleware, async (c) => {
     return { id: j.job_id, value: j.job_name };
   });
   return c.html(
-    <Layout js={'/public/js/job.js'}>
+    <Layout js={[navbarPath, '/public/js/job.js']}>
       <SidebarLayout>
         <JobPage job={jobs} />
       </SidebarLayout>
@@ -53,7 +54,7 @@ dashboardWeb.get(
       return { id: l.location_id, value: l.name };
     });
     return c.html(
-      <Layout js={'/public/js/attendance.js'}>
+      <Layout js={[navbarPath, '/public/js/attendance.js']}>
         <SidebarLayout>
           <AttendancePage location={location} />
         </SidebarLayout>
@@ -70,7 +71,7 @@ dashboardWeb.get(
     const userActivity = await ActivityService.getUserJobActivity(c);
 
     return c.html(
-      <Layout js={'/public/js/activity.js'}>
+      <Layout js={[navbarPath, '/public/js/activity.js']}>
         <SidebarLayout>
           <ActivityPage activity={userActivity} />
         </SidebarLayout>
@@ -86,7 +87,7 @@ dashboardWeb.get(
   async (c) => {
     const location = await LocationService.getUserLocation(c);
     return c.html(
-      <Layout js={'/public/js/location.js'}>
+      <Layout js={[navbarPath, '/public/js/location.js']}>
         <SidebarLayout>
           <LoctionPage location={location} />
         </SidebarLayout>
