@@ -52,6 +52,7 @@ export class AttendanceService {
             u.eoffice_username, 
             u.eoffice_password,
             j.name "job_name",
+            -- Eoffice Cek Absensi
             a.is_friday,
             a.is_monday,
             a.is_sunday,
@@ -59,6 +60,15 @@ export class AttendanceService {
             a.is_tuesday,
             a.is_wednesday,
             a.is_saturday,
+            -- MyPelindo Cek Absensi
+            a.is_pelindo_friday,
+            a.is_pelindo_monday,
+            a.is_pelindo_sunday,
+            a.is_pelindo_thursday,
+            a.is_pelindo_tuesday,
+            a.is_pelindo_wednesday,
+            a.is_pelindo_saturday,
+            -- Eoffice Waktu
             a.late_min_time_sunday,
             a.late_min_time_monday,
             a.late_min_time_tuesday,
@@ -73,6 +83,21 @@ export class AttendanceService {
             a.late_max_time_thursday,
             a.late_max_time_friday,
             a.late_max_time_saturday,
+            -- MyPelindo Waktu
+			      a.late_pelindo_min_time_sunday,
+            a.late_pelindo_min_time_monday,
+            a.late_pelindo_min_time_tuesday,
+            a.late_pelindo_min_time_wednesday,
+            a.late_pelindo_min_time_thursday,
+            a.late_pelindo_min_time_friday,
+            a.late_pelindo_min_time_saturday,
+            a.late_pelindo_max_time_sunday,
+            a.late_pelindo_max_time_monday,
+            a.late_pelindo_max_time_tuesday,
+            a.late_pelindo_max_time_wednesday,
+            a.late_pelindo_max_time_thursday,
+            a.late_pelindo_max_time_friday,
+            a.late_pelindo_max_time_saturday,
             -- Friday Location Details
             l_fri.location_id AS "friday_location_id",
             l_fri.name AS "friday_name",
@@ -141,9 +166,16 @@ export class AttendanceService {
       const day = daysOfWeek[i].toLocaleLowerCase();
       const lateMinTimeKey =
         `late_min_time_${day}` as keyof IUserWithAttendanceAndLocations;
-      const isActiveKey = `is_${day}` as keyof IUserWithAttendanceAndLocations;
+      const lateMinTimePelindoKey =
+        `late_pelindo_min_time_${day}` as keyof IUserWithAttendanceAndLocations;
+      const isActiveEofficeKey =
+        `is_${day}` as keyof IUserWithAttendanceAndLocations;
+      const isActivePelindoKey =
+        `is_pelindo_${day}` as keyof IUserWithAttendanceAndLocations;
       const lateMaxTimeKey =
         `late_max_time_${day}` as keyof IUserWithAttendanceAndLocations;
+      const lateMaxTimePelindoKey =
+        `late_pelindo_max_time_${day}` as keyof IUserWithAttendanceAndLocations;
       const dayLocationIdKey =
         `${day}_location_id` as keyof IUserWithAttendanceAndLocations;
       const dayNameKey = `${day}_name` as keyof IUserWithAttendanceAndLocations;
@@ -158,9 +190,12 @@ export class AttendanceService {
 
       result.attendance.push({
         day: day,
-        min_time: userAttendance[lateMinTimeKey] as Number,
-        max_time: userAttendance[lateMaxTimeKey] as Number,
-        is_active: userAttendance[isActiveKey] as Boolean,
+        min_time_eoffice: userAttendance[lateMinTimeKey] as Number,
+        max_time_eoffice: userAttendance[lateMaxTimeKey] as Number,
+        min_time_pelindo: userAttendance[lateMinTimePelindoKey] as Number,
+        max_time_pelindo: userAttendance[lateMaxTimePelindoKey] as Number,
+        is_active_eoffice: userAttendance[isActiveEofficeKey] as Boolean,
+        is_active_pelindo: userAttendance[isActivePelindoKey] as Boolean,
         location: {
           id: userAttendance[dayLocationIdKey] as Number,
           name: userAttendance[dayNameKey] as string,
@@ -184,27 +219,48 @@ export class AttendanceService {
     const newAttendance: IPrisma.AttendanceCreateInput = {
       via: req.via,
       kondisi: req.kondisi,
-      is_sunday: req.attendance_on_sunday,
-      is_monday: req.attendance_on_monday,
-      is_tuesday: req.attendance_on_tuesday,
-      is_wednesday: req.attendance_on_wednesday,
-      is_thursday: req.attendance_on_thursday,
-      is_friday: req.attendance_on_friday,
-      is_saturday: req.attendance_on_saturday,
-      late_min_time_sunday: req.min_time_sunday,
-      late_min_time_monday: req.min_time_monday,
-      late_min_time_tuesday: req.min_time_tuesday,
-      late_min_time_wednesday: req.min_time_wednesday,
-      late_min_time_thursday: req.min_time_thursday,
-      late_min_time_friday: req.min_time_friday,
-      late_min_time_saturday: req.min_time_saturday,
-      late_max_time_sunday: req.max_time_sunday,
-      late_max_time_monday: req.max_time_monday,
-      late_max_time_tuesday: req.max_time_tuesday,
-      late_max_time_wednesday: req.max_time_wednesday,
-      late_max_time_thursday: req.max_time_thursday,
-      late_max_time_friday: req.max_time_friday,
-      late_max_time_saturday: req.max_time_saturday,
+      is_sunday: req.attendance_eoffice_on_sunday,
+      is_monday: req.attendance_eoffice_on_monday,
+      is_tuesday: req.attendance_eoffice_on_tuesday,
+      is_wednesday: req.attendance_eoffice_on_wednesday,
+      is_thursday: req.attendance_eoffice_on_thursday,
+      is_friday: req.attendance_eoffice_on_friday,
+      is_saturday: req.attendance_eoffice_on_saturday,
+      is_pelindo_sunday: req.attendance_pelindo_on_sunday,
+      is_pelindo_monday: req.attendance_pelindo_on_monday,
+      is_pelindo_tuesday: req.attendance_pelindo_on_tuesday,
+      is_pelindo_wednesday: req.attendance_pelindo_on_wednesday,
+      is_pelindo_thursday: req.attendance_pelindo_on_thursday,
+      is_pelindo_friday: req.attendance_pelindo_on_friday,
+      is_pelindo_saturday: req.attendance_pelindo_on_saturday,
+      late_min_time_sunday: req.min_eoffice_time_sunday,
+      late_min_time_monday: req.min_eoffice_time_monday,
+      late_min_time_tuesday: req.min_eoffice_time_tuesday,
+      late_min_time_wednesday: req.min_eoffice_time_wednesday,
+      late_min_time_thursday: req.min_eoffice_time_thursday,
+      late_min_time_friday: req.min_eoffice_time_friday,
+      late_min_time_saturday: req.min_eoffice_time_saturday,
+      late_max_time_sunday: req.max_eoffice_time_sunday,
+      late_max_time_monday: req.max_eoffice_time_monday,
+      late_max_time_tuesday: req.max_eoffice_time_tuesday,
+      late_max_time_wednesday: req.max_eoffice_time_wednesday,
+      late_max_time_thursday: req.max_eoffice_time_thursday,
+      late_max_time_friday: req.max_eoffice_time_friday,
+      late_max_time_saturday: req.max_eoffice_time_saturday,
+      late_pelindo_min_time_sunday: req.min_pelindo_time_sunday,
+      late_pelindo_min_time_monday: req.min_pelindo_time_monday,
+      late_pelindo_min_time_tuesday: req.min_pelindo_time_tuesday,
+      late_pelindo_min_time_wednesday: req.min_pelindo_time_wednesday,
+      late_pelindo_min_time_thursday: req.min_pelindo_time_thursday,
+      late_pelindo_min_time_friday: req.min_pelindo_time_friday,
+      late_pelindo_min_time_saturday: req.min_pelindo_time_saturday,
+      late_pelindo_max_time_sunday: req.max_pelindo_time_sunday,
+      late_pelindo_max_time_monday: req.max_pelindo_time_monday,
+      late_pelindo_max_time_tuesday: req.max_pelindo_time_tuesday,
+      late_pelindo_max_time_wednesday: req.max_pelindo_time_wednesday,
+      late_pelindo_max_time_thursday: req.max_pelindo_time_thursday,
+      late_pelindo_max_time_friday: req.max_pelindo_time_friday,
+      late_pelindo_max_time_saturday: req.max_pelindo_time_saturday,
       location_sunday: {
         connect: {
           location_id: req.location_sunday,

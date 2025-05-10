@@ -1,3 +1,9 @@
+import axios from 'axios';
+import { prisma } from './database.providers';
+import { logger } from './logging.providers';
+import FormData from 'form-data';
+import fs from 'fs';
+
 interface Role {
   IDAPLIKASI: string;
   IDROLE: string;
@@ -67,6 +73,17 @@ interface MyPelindoUserResponse {
   ADDRESS: string | null;
 }
 
+interface MyPelindoAttendenceRequest {
+  GAMBAR: string;
+  LAT: string;
+  LNG: string;
+  TR_DATE: string;
+  LOKASI: string;
+  KOMENTAR: string | null;
+  PROGRAME_NAME: string;
+  TIPE: 1 | 2;
+}
+
 export async function userDoLoginPelindo({
   username,
   password,
@@ -98,4 +115,60 @@ export async function userDoLoginPelindo({
     resp.status == 200 ? true : false,
     resp.status == 200 ? httpRespData.ACCESSTOKEN : '',
   ];
+}
+
+export async function userDoAttandendPelindo({
+  attandendData,
+  token,
+  taskId,
+}: {
+  attandendData: MyPelindoAttendenceRequest;
+  token: string;
+  taskId?: string;
+}): Promise<number> {
+  logger.info(
+    '[userDoAttandendPelindo]: Executing MyPelindo Attandend Proccess'
+  );
+  const reqBody = new FormData();
+  if (attandendData != null || attandendData != undefined) {
+    for (const key in attandendData) {
+      if (key != 'GAMBAR') {
+        reqBody.append(
+          key,
+          String(attandendData[key as keyof MyPelindoAttendenceRequest])
+        );
+      }
+
+      if (key == 'GAMBAR') {
+        const filePath = String(
+          attandendData[key as keyof MyPelindoAttendenceRequest]
+        );
+        reqBody.append(key, fs.createReadStream(filePath));
+      }
+    }
+  }
+
+  let resp = await axios.post(
+    `https://my.api.pelindo.co.id/absensifc/doabsen`,
+    reqBody,
+    {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept-Encoding': 'gzip',
+        'User-Agent': 'okhttp/4.9.2',
+      },
+    }
+  );
+
+  if (taskId) {
+    await prisma.scheduler.deleteMany({
+      where: {
+        task_id: taskId,
+      },
+    });
+  }
+
+  return resp.status;
 }

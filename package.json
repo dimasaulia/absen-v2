@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "axios": "^1.9.0",
     "cssnano": "^7.0.6",
     "flowbite": "^2.5.2",
+    "form-data": "^4.0.2",
     "hono": "^4.6.10",
     "hono-sessions": "^0.7.0",
     "imagesloaded": "^5.0.0",

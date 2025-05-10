@@ -27,20 +27,30 @@ async function getAttendanceData() {
 
     if (attendanceData) {
       const card = document.getElementById(`card-attendance-${day}`);
+      console.log('Content');
       const formContent = card.children[1];
-      const locationForm = formContent.children[1];
+      const locationForm = formContent.children[2];
       const locationValue = locationForm.value;
-      const minTimeForm =
-        formContent.children[2].children[0].children[1].children[1];
-      const maxTimeForm =
-        formContent.children[2].children[1].children[1].children[1];
-      const activeForm = formContent.children[3].children[1];
+      const minTimeEofficeForm =
+        formContent.children[4].children[0].children[1].children[1];
+      const maxTimeEofficeForm =
+        formContent.children[4].children[1].children[1].children[1];
+      const minTimeMyPelindoForm =
+        formContent.children[6].children[0].children[1].children[1];
+      const maxTimeMyPelindoForm =
+        formContent.children[6].children[1].children[1].children[1];
+      const activeEofficeForm = formContent.children[7].children[1];
+      const activePelindoForm = formContent.children[8].children[1];
+      console.log(minTimeMyPelindoForm);
 
       // Set Value
       locationForm.value = attendanceData['location']['id'];
-      minTimeForm.value = attendanceData['min_time'];
-      maxTimeForm.value = attendanceData['max_time'];
-      activeForm.checked = attendanceData['is_active'];
+      minTimeEofficeForm.value = attendanceData['min_time_eoffice'];
+      maxTimeEofficeForm.value = attendanceData['max_time_eoffice'];
+      minTimeMyPelindoForm.value = attendanceData['min_time_pelindo'];
+      maxTimeMyPelindoForm.value = attendanceData['max_time_pelindo'];
+      activeEofficeForm.checked = attendanceData['is_active_eoffice'];
+      activePelindoForm.checked = attendanceData['is_active_pelindo'];
     }
   }
 }
@@ -48,6 +58,7 @@ async function getAttendanceData() {
 getAttendanceData();
 
 button.addEventListener('click', async (e) => {
+  button.textContent = 'Loading';
   e.preventDefault();
 
   const attendanceReqBody = {
@@ -60,17 +71,39 @@ button.addEventListener('click', async (e) => {
 
     const card = document.getElementById(`card-attendance-${day}`);
     const formContent = card.children[1];
-    const locationForm = formContent.children[1];
+    const locationForm = formContent.children[2];
     const locationValue = locationForm.value;
-    const minTimeForm =
-      formContent.children[2].children[0].children[1].children[1];
-    const maxTimeForm =
-      formContent.children[2].children[1].children[1].children[1];
-    const activeForm = formContent.children[3].children[1];
 
-    attendanceReqBody[`attendance_on_${day}`] = activeForm.checked;
-    attendanceReqBody[`min_time_${day}`] = Number(minTimeForm.value);
-    attendanceReqBody[`max_time_${day}`] = Number(maxTimeForm.value);
+    const minEofficeTimeForm =
+      formContent.children[4].children[0].children[1].children[1];
+    const maxEofficeTimeForm =
+      formContent.children[4].children[1].children[1].children[1];
+    const activeEofficeForm = formContent.children[7].children[1];
+
+    const minPelindoTimeForm =
+      formContent.children[6].children[0].children[1].children[1];
+    const maxPelindoTimeForm =
+      formContent.children[6].children[1].children[1].children[1];
+    const activePelindoForm = formContent.children[8].children[1];
+
+    attendanceReqBody[`attendance_eoffice_on_${day}`] =
+      activeEofficeForm.checked;
+    attendanceReqBody[`min_eoffice_time_${day}`] = Number(
+      minEofficeTimeForm.value
+    );
+    attendanceReqBody[`max_eoffice_time_${day}`] = Number(
+      maxEofficeTimeForm.value
+    );
+
+    attendanceReqBody[`attendance_pelindo_on_${day}`] =
+      activePelindoForm.checked;
+    attendanceReqBody[`min_pelindo_time_${day}`] = Number(
+      minPelindoTimeForm.value
+    );
+    attendanceReqBody[`max_pelindo_time_${day}`] = Number(
+      maxPelindoTimeForm.value
+    );
+
     attendanceReqBody[`location_${day}`] = Number(locationValue);
   }
 
@@ -107,4 +140,6 @@ button.addEventListener('click', async (e) => {
       },
     }).showToast();
   }
+
+  button.textContent = 'Save';
 });
