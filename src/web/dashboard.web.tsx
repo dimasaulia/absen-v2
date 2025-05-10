@@ -115,3 +115,19 @@ dashboardWeb.get(
     );
   }
 );
+
+dashboardWeb.get(
+  '/image',
+  webEofficeMiddleware,
+  webMyPelindoMiddleware,
+  webJobMiddleware,
+  async (c) => {
+    return c.html(
+      <Layout js={[navbarPath, '/public/js/image.js']}>
+        <SidebarLayout>
+          <h2>Image</h2>
+        </SidebarLayout>
+      </Layout>
+    );
+  }
+);

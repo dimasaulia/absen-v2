@@ -21,6 +21,7 @@ import { wakeupAttendance } from './providers/attendance.providers';
 import { dashboardWeb } from './web/dashboard.web';
 import { authWeb } from './web/auth.web';
 import { monitoringController } from './monitoring/monitoring.controller';
+import { imageController } from './image/image.controller';
 const store = new CookieStore();
 
 type Variables = {
@@ -69,6 +70,7 @@ app.route('/api/users/', userController);
 app.route('/api/locations/', locationController);
 app.route('/api/job/', activityController);
 app.route('/api/attendance/', attendanceController);
+app.route('/api/image/', imageController);
 app.route('/api/health/', monitoringController);
 
 app.onError(async (err, c) => {

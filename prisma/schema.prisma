@@ -39,6 +39,7 @@ model User {
   attendance          Attendance[]
   job_activity        JobActivity[]
   location            Location[]
+  imagePair           ImagePair[]
   job_id              Int?
 }
 
@@ -158,6 +159,18 @@ model Location {
   thursday_attendance  Attendance[] @relation("location_thursday")
   friday_attendance    Attendance[] @relation("location_friday")
   saturday_attendance  Attendance[] @relation("location_saturday")
+}
+
+model ImagePair {
+  image_pair_id         Int       @id @default(autoincrement())
+  hi_res_clockin_path   String?
+  hi_res_clockout_path  String?
+  low_res_clockin_path  String?
+  low_res_clockout_path String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime? @updatedAt
+  user                  User?     @relation(fields: [user_id], references: [user_id])
+  user_id               String?
 }
 
 enum Via {
