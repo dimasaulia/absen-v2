@@ -24,6 +24,7 @@ import { decode, sign, verify } from 'hono/jwt';
 import { userDoLogin } from '../providers/attendance.providers';
 import { encryptText } from '../providers/encription.providers';
 import { User } from '@prisma/client';
+import { userDoLoginPelindo } from '../providers/mypelindo.providers';
 
 export class UserService {
   static async register(
@@ -324,5 +325,34 @@ export class UserService {
     });
 
     return toUserResponse(user);
+  }
+
+  static async syncMyPelindo(
+    request: EofficeRequest,
+    c: Context
+  ): Promise<[string, Boolean]> {
+    const req: EofficeRequest = UserValidation.EOFFICE.parse(request);
+    const userData: UserData = await c.get('userData');
+
+    const [resp, _] = await userDoLoginPelindo({
+      username: req.username,
+      password: req.password,
+    });
+
+    if (resp) {
+      await prisma.user.update({
+        data: {
+          mypelindo_username: req.username,
+          mypelindo_password: encryptText(req.password),
+        },
+        where: {
+          user_id: userData.user_id,
+        },
+      });
+    }
+
+    return resp
+      ? ['Sukses Melakukan Integrasi Ke MyPelindo', true]
+      : ['Gagal Melakukan Integrasi Ke MyPelindo', false];
   }
 }

@@ -25,6 +25,8 @@ model User {
   full_name           String
   eoffice_username    String?
   eoffice_password    String?
+  mypelindo_username  String?
+  mypelindo_password  String?
   account_is_verified Boolean       @default(false)
   email_is_verified   Boolean       @default(false)
   password_updated_at DateTime

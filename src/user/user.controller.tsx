@@ -87,3 +87,13 @@ userController.put('/job', apiAuthMiddleware, async (c) => {
 userController.get('/logout', async (c) => {
   UserService.logout(c);
 });
+
+userController.put('/mypelindo', apiAuthMiddleware, async (c) => {
+  const req = (await c.req.json()) as EofficeRequest;
+  const [resp, isSuccess] = await UserService.syncMyPelindo(req, c);
+
+  c.status(isSuccess ? 200 : 400);
+  return c.json({
+    message: resp,
+  });
+});

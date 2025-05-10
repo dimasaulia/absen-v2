@@ -5,6 +5,7 @@ import {
   webAuthMiddleware,
   webEofficeMiddleware,
   webJobMiddleware,
+  webMyPelindoMiddleware,
 } from '../middleware/user.middleware';
 import AttendancePage from '../providers/page/attendance.page';
 import { LocationService } from '../location/location.services';
@@ -16,6 +17,7 @@ import JobPage from '../providers/page/job.page';
 import ActivityPage from '../providers/page/activity.page';
 import LoctionPage from '../providers/page/location.page';
 import { navbarPath } from '../providers/path.providers';
+import MyPelindoPage from '../providers/page/mypelindo.page';
 
 export const dashboardWeb = new Hono();
 
@@ -30,23 +32,39 @@ dashboardWeb.get('/eoffice', async (c) => {
   );
 });
 
-dashboardWeb.get('/job', webEofficeMiddleware, async (c) => {
-  const allJob = await ActivityService.getAllJob(c);
-  const jobs: SelectOption[] = allJob.map((j) => {
-    return { id: j.job_id, value: j.job_name };
-  });
+dashboardWeb.get('/mypelindo', async (c) => {
   return c.html(
-    <Layout js={[navbarPath, '/public/js/job.js']}>
+    <Layout js={[navbarPath, '/public/js/mypelindo.js']}>
       <SidebarLayout>
-        <JobPage job={jobs} />
+        <MyPelindoPage />
       </SidebarLayout>
     </Layout>
   );
 });
 
 dashboardWeb.get(
+  '/job',
+  webEofficeMiddleware,
+  webMyPelindoMiddleware,
+  async (c) => {
+    const allJob = await ActivityService.getAllJob(c);
+    const jobs: SelectOption[] = allJob.map((j) => {
+      return { id: j.job_id, value: j.job_name };
+    });
+    return c.html(
+      <Layout js={[navbarPath, '/public/js/job.js']}>
+        <SidebarLayout>
+          <JobPage job={jobs} />
+        </SidebarLayout>
+      </Layout>
+    );
+  }
+);
+
+dashboardWeb.get(
   '/attendance',
   webEofficeMiddleware,
+  webMyPelindoMiddleware,
   webJobMiddleware,
   async (c) => {
     const userLocation = await LocationService.getUserLocation(c);
@@ -66,6 +84,7 @@ dashboardWeb.get(
 dashboardWeb.get(
   '/activity',
   webEofficeMiddleware,
+  webMyPelindoMiddleware,
   webJobMiddleware,
   async (c) => {
     const userActivity = await ActivityService.getUserJobActivity(c);
@@ -83,6 +102,7 @@ dashboardWeb.get(
 dashboardWeb.get(
   '/location',
   webEofficeMiddleware,
+  webMyPelindoMiddleware,
   webJobMiddleware,
   async (c) => {
     const location = await LocationService.getUserLocation(c);

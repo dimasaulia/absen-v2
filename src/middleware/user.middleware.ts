@@ -82,3 +82,10 @@ export const webJobMiddleware = async (c: Context, next: Next) => {
   if (!isEofficeSync) return c.redirect('/dashboard/job');
   return next();
 };
+
+export const webMyPelindoMiddleware = async (c: Context, next: Next) => {
+  const userData: UserData = await c.get('userData');
+  const isEofficeSync = await UserServiceMiddleware.verifyMyPelindo(userData);
+  if (!isEofficeSync) return c.redirect('/dashboard/mypelindo');
+  return next();
+};

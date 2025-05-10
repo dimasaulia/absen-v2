@@ -60,4 +60,17 @@ export class UserServiceMiddleware {
     if (!user?.job_id) return false;
     return true;
   }
+
+  static async verifyMyPelindo(u: UserResponse): Promise<Boolean> {
+    const user = await prisma.user.findUnique({
+      select: {
+        mypelindo_username: true,
+        mypelindo_password: true,
+      },
+      where: { username: u.username },
+    });
+
+    if (!user?.mypelindo_username || !user?.mypelindo_username) return false;
+    return true;
+  }
 }

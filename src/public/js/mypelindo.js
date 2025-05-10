@@ -5,7 +5,7 @@ const buttonSync = document.getElementById('button-sync');
 buttonSync.addEventListener('click', async (e) => {
   e.preventDefault();
 
-  const resp = await fetch('/api/users/eoffice', {
+  const resp = await fetch('/api/users/mypelindo', {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -40,7 +40,7 @@ buttonSync.addEventListener('click', async (e) => {
     }).showToast();
 
     setTimeout(() => {
-      window.location = '/dashboard/mypelindo';
+      window.location = '/dashboard/attendance';
     }, 2000);
   }
 });
