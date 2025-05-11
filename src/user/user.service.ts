@@ -10,6 +10,7 @@ import {
   UserData,
   EofficeRequest,
   SetUserJobRequest,
+  MyPelindoRequest,
 } from './user.model';
 import { UserValidation } from './user.validation';
 import { HTTPException } from 'hono/http-exception';
@@ -328,22 +329,23 @@ export class UserService {
   }
 
   static async syncMyPelindo(
-    request: EofficeRequest,
+    request: MyPelindoRequest,
     c: Context
   ): Promise<[string, Boolean]> {
-    const req: EofficeRequest = UserValidation.EOFFICE.parse(request);
+    const req: MyPelindoRequest = UserValidation.MYPELINDO.parse(request);
     const userData: UserData = await c.get('userData');
 
-    const [resp, _] = await userDoLoginPelindo({
+    const data = await userDoLoginPelindo({
       username: req.username,
       password: req.password,
     });
 
-    if (resp) {
+    if (data.success) {
       await prisma.user.update({
         data: {
           mypelindo_username: req.username,
           mypelindo_password: encryptText(req.password),
+          device_name: req.device,
         },
         where: {
           user_id: userData.user_id,
@@ -351,7 +353,7 @@ export class UserService {
       });
     }
 
-    return resp
+    return data.success
       ? ['Sukses Melakukan Integrasi Ke MyPelindo', true]
       : ['Gagal Melakukan Integrasi Ke MyPelindo', false];
   }

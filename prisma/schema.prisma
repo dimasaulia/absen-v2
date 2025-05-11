@@ -27,6 +27,7 @@ model User {
   eoffice_password    String?
   mypelindo_username  String?
   mypelindo_password  String?
+  device_name         String?
   account_is_verified Boolean       @default(false)
   email_is_verified   Boolean       @default(false)
   password_updated_at DateTime
@@ -44,14 +45,15 @@ model User {
 }
 
 model Scheduler {
-  scheduler_id Int      @id @default(autoincrement())
-  task_id      String
-  task_time    DateTime
-  task_data    Json
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-  user         User?    @relation(fields: [user_id], references: [user_id])
-  user_id      String?
+  scheduler_id   Int            @id @default(autoincrement())
+  task_id        String
+  task_time      DateTime
+  task_data      Json
+  scheduler_type SchedulerType?
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  user           User?          @relation(fields: [user_id], references: [user_id])
+  user_id        String?
 }
 
 model Attendance {
@@ -192,4 +194,9 @@ enum Day {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+enum SchedulerType {
+  EOFFICE
+  MYPELINDO
 }

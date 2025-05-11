@@ -28,6 +28,12 @@ export default function MyPelindoPage() {
           placeholder="Type your password"
         />
 
+        <TextInput
+          formName="input-device"
+          iconPath="/public/img/icon/phone.svg"
+          placeholder="Type your device"
+        />
+
         <Button buttonName="button-sync" placeholder="Sync" />
       </form>
     </div>

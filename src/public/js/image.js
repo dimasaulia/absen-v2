@@ -133,7 +133,7 @@ uploadButton.addEventListener('click', (e) => {
           if (d.ok) {
             imageGaleryContainer.textContent = '';
             const respData = await d.json();
-            console.log(respData);
+
             for (let i = 0; i < respData?.data?.length; i++) {
               const data = respData?.data[i];
               imageGaleryContainer.insertAdjacentHTML(

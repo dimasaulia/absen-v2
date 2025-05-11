@@ -46,6 +46,12 @@ export type EofficeRequest = {
   password: string;
 };
 
+export type MyPelindoRequest = {
+  username: string;
+  password: string;
+  device: string;
+};
+
 export type SetUserJobRequest = {
   job_id: Number;
 };
