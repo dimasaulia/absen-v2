@@ -18,6 +18,8 @@ import ActivityPage from '../providers/page/activity.page';
 import LoctionPage from '../providers/page/location.page';
 import { navbarPath } from '../providers/path.providers';
 import MyPelindoPage from '../providers/page/mypelindo.page';
+import ImagePage from '../providers/page/image.page';
+import { ImageService } from '../image/image.service';
 
 export const dashboardWeb = new Hono();
 
@@ -122,10 +124,11 @@ dashboardWeb.get(
   webMyPelindoMiddleware,
   webJobMiddleware,
   async (c) => {
+    const images = await ImageService.getImage(c);
     return c.html(
       <Layout js={[navbarPath, '/public/js/image.js']}>
         <SidebarLayout>
-          <h2>Image</h2>
+          <ImagePage images={images} />
         </SidebarLayout>
       </Layout>
     );

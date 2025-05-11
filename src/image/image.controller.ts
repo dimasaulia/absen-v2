@@ -14,3 +14,13 @@ imageController.post('/', async (c) => {
     data: data,
   });
 });
+
+imageController.get('/', async (c) => {
+  const data = await ImageService.getImage(c);
+
+  c.status(200);
+  return c.json({
+    messages: 'Berhasil Mendapatkan Data',
+    data: data,
+  });
+});

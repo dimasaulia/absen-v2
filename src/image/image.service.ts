@@ -3,7 +3,11 @@ import { logger } from '../providers/logging.providers';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import path from 'path';
 import { UserData } from '../user/user.model';
-import { ImageStorage } from './image.model';
+import {
+  ImagePairResponse,
+  ImageStorage,
+  toImageResponse,
+} from './image.model';
 import { Prisma as IPrisma } from '../../node_modules/.prisma/client/index';
 import sharp from 'sharp';
 import { prisma } from '../providers/database.providers';
@@ -115,6 +119,23 @@ export class ImageService {
     } catch (error) {
       logger.error(`error in image.service.ts, detail: ${error}`);
       return [false, error];
+    }
+  }
+
+  static async getImage(c: Context): Promise<ImagePairResponse[]> {
+    try {
+      const imageResponse: ImagePairResponse[] = [];
+      const userData: UserData = await c.get('userData');
+      const imageData = await prisma.imagePair.findMany({
+        where: {
+          user_id: userData.user_id,
+        },
+      });
+
+      imageData.map((d) => imageResponse.push(toImageResponse(d)));
+      return imageResponse;
+    } catch (error) {
+      return [];
     }
   }
 }

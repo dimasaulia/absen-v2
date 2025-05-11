@@ -14,7 +14,7 @@ export class Scheduler {
    */
   static setTask(
     date: Date | string,
-    fn: () => Promise<void>,
+    fn: () => void | Promise<void>,
     taskId: string | null = null
   ): string {
     let id = taskId;
