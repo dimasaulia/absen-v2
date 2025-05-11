@@ -70,7 +70,7 @@ export class UserServiceMiddleware {
       where: { username: u.username },
     });
 
-    if (!user?.mypelindo_username || !user?.mypelindo_username) return false;
+    if (user?.mypelindo_username || user?.mypelindo_username) return false;
     return true;
   }
 }
