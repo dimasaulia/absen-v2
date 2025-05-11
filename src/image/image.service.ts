@@ -9,8 +9,8 @@ import {
   toImageResponse,
 } from './image.model';
 import { Prisma as IPrisma } from '../../node_modules/.prisma/client/index';
-import sharp from 'sharp';
 import { prisma } from '../providers/database.providers';
+import Jimp from 'jimp';
 
 export class ImageService {
   static async uploadImage(c: Context): Promise<[boolean, any]> {
@@ -50,8 +50,15 @@ export class ImageService {
             `${fileName}-low.${fileType}`
           );
 
-          const hiRes = await sharp(fileBuffer).resize(2000).toBuffer();
-          const lowRes = await sharp(fileBuffer).resize(300).toBuffer();
+          const hiResImage = await Jimp.read(fileBuffer);
+          hiResImage.quality(50);
+
+          const lowResImage = await Jimp.read(fileBuffer);
+          lowResImage.quality(30).resize(256, Jimp.AUTO);
+
+          const hiRes = await hiResImage.getBufferAsync(Jimp.MIME_JPEG);
+          const lowRes = await lowResImage.getBufferAsync(Jimp.MIME_JPEG);
+
           createWriteStream(hiResFilePath).write(hiRes);
           createWriteStream(lowResFilePath).write(lowRes);
 

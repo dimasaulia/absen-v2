@@ -172,6 +172,7 @@ uploadButton.addEventListener('click', (e) => {
     .finally(() => {
       uploadButton.textContent = 'Upload';
       uploadButton.disabled = false;
+      pendingImageContainerCount = 0;
       let counter = 0;
       for (let i = 0; i < pendingImage.length; i++) {
         let clockType = 'clock-out';
