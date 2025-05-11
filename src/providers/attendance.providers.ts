@@ -126,6 +126,7 @@ export async function wakeupAttendance(
         u.username, 
         u.eoffice_username, 
         u.eoffice_password,
+        u.device_name,
         j.name "job_name",
         a.is_friday,
         a.is_monday,
@@ -282,6 +283,7 @@ export async function wakeupAttendance(
           task_time: scheduleTime,
           user_id: user.user_id,
           task_data: JSON.parse(JSON.stringify(absenPayload)),
+          scheduler_type: 'EOFFICE',
         });
       }
     }

@@ -84,6 +84,7 @@ export interface IUserWithAttendanceAndLocations {
   username: string;
   eoffice_username: string;
   eoffice_password: string;
+  device_name: string;
   job_name: string;
   is_friday: boolean;
   is_monday: boolean;

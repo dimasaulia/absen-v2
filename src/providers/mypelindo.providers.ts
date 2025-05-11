@@ -254,6 +254,7 @@ export async function wakeupMyPelindoAttendance(
         u.username, 
         u.mypelindo_username "eoffice_username", 
         u.mypelindo_password "eoffice_password",
+        u.device_name,
         j.name "job_name",
         a.is_pelindo_friday "is_friday",
         a.is_pelindo_monday "is_monday",
@@ -393,7 +394,7 @@ export async function wakeupMyPelindoAttendance(
           TR_DATE: formatScheduleTime(scheduleTime),
           LOKASI: `${loc_alamat}`,
           KOMENTAR: 'null',
-          PROGRAME_NAME: 'Android 15',
+          PROGRAME_NAME: user?.device_name || 'Android 15',
           TIPE: attandendType == 'absen_masuk' ? 1 : 2,
           GAMBAR: 'src/' + imageForAttendance!,
         };
@@ -418,15 +419,16 @@ export async function wakeupMyPelindoAttendance(
           taskId
         );
 
-        // bulkData.push({
-        //   task_id: taskId,
-        //   task_time: scheduleTime,
-        //   user_id: user.user_id,
-        //   task_data: JSON.parse(JSON.stringify(absenPayload)),
-        // });
+        bulkData.push({
+          task_id: taskId,
+          task_time: scheduleTime,
+          user_id: user.user_id,
+          task_data: JSON.parse(JSON.stringify(absenPayload)),
+          scheduler_type: 'MYPELINDO',
+        });
       }
     }
-    // await prisma.scheduler.createMany({ data: bulkData });
+    await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
     logger.error(
       '[mypelindo.providers.ts] wakeupMyPelindoAttendance Failed; Error detail:'

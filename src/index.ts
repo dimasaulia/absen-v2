@@ -22,6 +22,7 @@ import { dashboardWeb } from './web/dashboard.web';
 import { authWeb } from './web/auth.web';
 import { monitoringController } from './monitoring/monitoring.controller';
 import { imageController } from './image/image.controller';
+import { wakeupMyPelindoAttendance } from './providers/mypelindo.providers';
 const store = new CookieStore();
 
 type Variables = {
@@ -101,16 +102,28 @@ app.onError(async (err, c) => {
   }
 });
 
-logger.info('Set Scheduled Absen Masuk Running On 08.00 WIB');
+logger.info('Set Scheduled Eoffice Absen Masuk Running On 08.00 WIB');
 schedule('0 0 8 * * *', () => {
-  logger.info(`Cron Job For Absen Masuk at ${new Date()}`);
+  logger.info(`Cron Job For Absen Masuk Eoffice at ${new Date()}`);
   wakeupAttendance('absen_masuk');
 });
 
-logger.info('Set Scheduled Absen Pulang Running On 20.00 WIB');
+logger.info('Set Scheduled Eoffice Absen Pulang Eoffice Running On 20.00 WIB');
 schedule('0 0 20 * * *', () => {
   logger.info(`Cron Job For Absen Pulang at ${new Date()}`);
   wakeupAttendance('absen_pulang');
+});
+
+logger.info('Set Scheduled MyPelindo Absen Masuk Running On 07.00 WIB');
+schedule('0 0 7 * * *', () => {
+  logger.info(`Cron Job For Absen Masuk MyPelindo at ${new Date()}`);
+  wakeupMyPelindoAttendance('absen_masuk');
+});
+
+logger.info('Set Scheduled MyPelindo Absen Pulang Running On 17.15 WIB');
+schedule('0 15 17 * * *', () => {
+  logger.info(`Cron Job For Absen Pulang MyPelindo at ${new Date()}`);
+  wakeupMyPelindoAttendance('absen_pulang');
 });
 
 // serve({ port: Number(Bun.env.PORT), fetch: app.fetch });
