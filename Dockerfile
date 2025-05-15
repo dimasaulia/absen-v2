@@ -24,6 +24,7 @@ COPY prisma  /usr/src/app/prisma
 COPY tailwind.config.js  /usr/src/app/
 COPY .env /usr/src/app/.env
 COPY bunfig.toml /usr/src/app/
+COPY tsconfig.json /usr/src/app/
 RUN bunx tailwindcss -i /usr/src/app/src/public/css/input.css -o /usr/src/app/src/public/css/final.css
 RUN bunx postcss /usr/src/app/src/public/css/final.css -o /usr/src/app/src/public/css/final-min.css
 RUN bunx prisma migrate deploy
@@ -34,11 +35,15 @@ RUN bun build --sourcemap /usr/src/app/src/index.ts --outdir /usr/src/app/.dist 
 FROM base AS release
 COPY --from=install /temp/dev/node_modules node_modules
 COPY --from=prerelease /usr/src/app/node_modules/.prisma/client node_modules/.prisma/client
-COPY --from=prerelease /usr/src/app/src/public /usr/src/app/public
+COPY --from=prerelease /usr/src/app/src/public /usr/src/app/src/public
 COPY --from=prerelease /usr/src/app/.dist/index.js .
 COPY --from=prerelease /usr/src/app/.dist/index.js.map .
 COPY --from=prerelease /usr/src/app/.env /usr/src/app/.env
 COPY package.json /usr/src/app/
+COPY tsconfig.json /usr/src/app/
+
+RUN chmod -R 777 /usr/src/app/src/public/img/storage
+RUN chown -R bun:bun /usr/src/app/src/public/img/storage
 
 # run the app
 USER bun
