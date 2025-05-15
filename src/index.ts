@@ -103,6 +103,13 @@ app.onError(async (err, c) => {
   }
 });
 
+logger.info(`Server Start On ${new Date()} ${new Date().getTimezoneOffset()}`);
+logger.info(
+  `Server Start On ${new Date().toLocaleString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+  })} (${Intl.DateTimeFormat().resolvedOptions().timeZone})`
+);
+
 logger.info('Set Scheduled Eoffice Absen Masuk Running On 08.00 WIB');
 schedule('0 0 8 * * *', () => {
   logger.info(`Cron Job For Absen Masuk Eoffice at ${new Date()}`);
@@ -121,8 +128,8 @@ schedule('0 0 7 * * *', () => {
   wakeupMyPelindoAttendance('absen_masuk');
 });
 
-logger.info('Set Scheduled MyPelindo Absen Pulang Running On 17.15 WIB');
-schedule('0 15 17 * * *', () => {
+logger.info('Set Scheduled MyPelindo Absen Pulang Running On 17.00 WIB');
+schedule('0 0 17 * * *', () => {
   logger.info(`Cron Job For Absen Pulang MyPelindo at ${new Date()}`);
   wakeupMyPelindoAttendance('absen_pulang');
 });
