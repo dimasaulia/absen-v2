@@ -1,8 +1,12 @@
 FROM oven/bun:1 AS base
 WORKDIR /usr/src/app
 
-# Install OpenSSL agar Prisma dapat berjalan
-RUN apt-get update && apt-get install -y openssl
+# Install OpenSSL agar Prisma dapat berjalan, serta tzdata untuk mengatur zona waktu
+RUN apt-get update && \
+    apt-get install -y openssl tzdata && \
+    ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && \
+    echo "Asia/Jakarta" > /etc/timezone && \
+    dpkg-reconfigure -f noninteractive tzdata
 
 # install dependencies into temp directory
 # this will cache them and speed up future builds
