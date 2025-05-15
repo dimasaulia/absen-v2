@@ -4,6 +4,7 @@ services:
     container_name: be-absen
     ports:
       - '8500:8500'
+    user: '1000:1000'
     deploy:
       resources:
         limits:
