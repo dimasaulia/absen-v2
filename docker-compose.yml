@@ -1,0 +1,12 @@
+services:
+  app:
+    image: absen:latest
+    container_name: be-absen
+    ports:
+      - '8500:8500'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 850M
+    restart: always
