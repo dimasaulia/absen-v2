@@ -8,5 +8,5 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 850M
+          memory: 1024M
     restart: always
