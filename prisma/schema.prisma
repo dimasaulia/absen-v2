@@ -42,6 +42,7 @@ model User {
   location            Location[]
   imagePair           ImagePair[]
   job_id              Int?
+  ImageLog            ImageLog[]
 }
 
 model Scheduler {
@@ -164,15 +165,26 @@ model Location {
 }
 
 model ImagePair {
-  image_pair_id         Int       @id @default(autoincrement())
+  image_pair_id         Int        @id @default(autoincrement())
   hi_res_clockin_path   String?
   hi_res_clockout_path  String?
   low_res_clockin_path  String?
   low_res_clockout_path String?
-  created_at            DateTime  @default(now())
-  updated_at            DateTime? @updatedAt
-  user                  User?     @relation(fields: [user_id], references: [user_id])
+  created_at            DateTime   @default(now())
+  updated_at            DateTime?  @updatedAt
+  user                  User?      @relation(fields: [user_id], references: [user_id])
   user_id               String?
+  ImageLog              ImageLog[]
+}
+
+model ImageLog {
+  image_log_id  Int        @id @default(autoincrement())
+  image_pair    ImagePair? @relation(fields: [image_pair_id], references: [image_pair_id])
+  image_pair_id Int?
+  user          User?      @relation(fields: [user_id], references: [user_id])
+  user_id       String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime?  @updatedAt
 }
 
 enum Via {
