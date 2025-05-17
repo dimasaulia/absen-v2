@@ -163,4 +163,7 @@ export interface IUserWithAttendanceAndLocations {
   late_pelindo_max_time_thursday: number | null;
   late_pelindo_max_time_friday: number | null;
   late_pelindo_max_time_saturday: number | null;
+  image_log_id: number | null;
+  hi_res_clockin_path: string | null;
+  hi_res_clockout_path: string | null;
 }

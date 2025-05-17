@@ -318,7 +318,11 @@ export async function wakeupMyPelindoAttendance(
         l_sun.lokasi AS "sunday_lokasi",
         l_sun.alamat AS "sunday_alamat",
         l_sun.state AS "sunday_state",
-        l_sun.provinsi AS "sunday_provinsi"
+        l_sun.provinsi AS "sunday_provinsi",
+        -- Image
+        il.image_log_id as "image_log_id",
+        ip.hi_res_clockin_path as "hi_res_clockin_path",
+        ip.hi_res_clockout_path as "hi_res_clockout_path" 
     FROM "User" u
     LEFT JOIN "Attendance" a ON a.user_id = u.user_id
     LEFT JOIN "Job" j ON j.job_id = u.job_id
@@ -329,7 +333,9 @@ export async function wakeupMyPelindoAttendance(
     LEFT JOIN "Location" l_wed ON l_wed.location_id = a.location_wednesday_id
     LEFT JOIN "Location" l_thu ON l_thu.location_id = a.location_thursday_id
     LEFT JOIN "Location" l_sat ON l_sat.location_id = a.location_saturday_id
-    LEFT JOIN "Location" l_sun ON l_sun.location_id = a.location_sunday_id;
+    LEFT JOIN "Location" l_sun ON l_sun.location_id = a.location_sunday_id
+    LEFT JOIN "ImageLog" il ON il.user_id = u.user_id
+    LEFT JOIN "ImagePair" ip ON ip.image_pair_id = il.image_pair_id;
   `);
 
     for (let i = 0; i < userAttandend.length; i++) {
@@ -367,15 +373,71 @@ export async function wakeupMyPelindoAttendance(
           `[mypelindo.providers.ts] Doing attendance for ${user.username} day: ${currentDay} hour: ${scheduleTime}`
         );
 
-        const imageData = await prisma.imagePair.findMany({
+        const imageCount = await prisma.imagePair.count({
           where: { user_id: user.user_id },
         });
-        if (imageData.length == 0) continue;
-        const randomImage = getRandomMinutes(0, imageData.length - 1);
-        const imageForAttendance =
-          attandendType == 'absen_masuk'
-            ? imageData[randomImage].hi_res_clockin_path
-            : imageData[randomImage].hi_res_clockout_path;
+        if (imageCount == 0) continue;
+        let imageForAttendance = '';
+
+        // Kalau absen masuk, random image
+        // Kalau absen masuk, pastikan id image lognya ada, kalau belum ada bikin dulu
+        if (attandendType == 'absen_masuk') {
+          const imageData = await prisma.imagePair.findMany({
+            where: { user_id: user.user_id },
+          });
+          let randomImage = getRandomMinutes(0, imageData.length - 1);
+          imageForAttendance = imageData[randomImage].hi_res_clockin_path!;
+
+          const safeSearchLimit = 10;
+          let safeSearchCount = 0;
+          while (
+            safeSearchCount < safeSearchLimit &&
+            imageForAttendance == user.hi_res_clockin_path
+          ) {
+            logger.info(
+              `[mypelindo.providers.ts] Try finding other image for ${user.username}, ${safeSearchCount} times`
+            );
+            randomImage = getRandomMinutes(0, imageData.length - 1);
+            imageForAttendance = imageData[randomImage].hi_res_clockin_path!;
+            safeSearchCount++;
+          }
+
+          if (user.image_log_id == null) {
+            const imageLog = await prisma.imageLog.create({
+              data: {
+                user_id: user.user_id,
+                image_pair_id: imageData[randomImage].image_pair_id,
+              },
+            });
+          }
+          if (user.image_log_id != null) {
+            await prisma.imageLog.update({
+              where: {
+                image_log_id: user.image_log_id,
+                user_id: user.user_id,
+              },
+              data: {
+                image_pair_id: imageData[randomImage].image_pair_id,
+              },
+            });
+          }
+        }
+
+        // Kalau absen pulang, ambil image terakhir
+        // Kalau absen pulang, pastikan id image lognya ada, kalau belum ada langsung random
+        if (attandendType == 'absen_pulang' && user.image_log_id != null) {
+          imageForAttendance = user.hi_res_clockout_path!;
+        }
+
+        if (attandendType == 'absen_pulang' && user.image_log_id == null) {
+          const imageData = await prisma.imagePair.findMany({
+            where: { user_id: user.user_id },
+          });
+          let randomImage = getRandomMinutes(0, imageData.length - 1);
+          imageForAttendance = imageData[randomImage].hi_res_clockin_path!;
+        }
+
+        if (imageForAttendance == '') continue;
 
         const lat =
           String(loc_lokasi).split(',')[0]?.length > 8
