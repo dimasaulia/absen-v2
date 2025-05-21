@@ -103,7 +103,7 @@ export async function userDoLoginPelindo({
   password: string;
 }): Promise<MyPelindoLoginRespone> {
   try {
-    logger.info(
+    console.log(
       '[userDoAttandendPelindo] Executing userDoLoginPelindo Proccess'
     );
     const authorizationBase64 = Buffer.from(`${username}:${password}`).toString(
@@ -141,7 +141,7 @@ export async function userDoLoginPelindo({
       jsessionid: response.status == 200 ? response.headers['set-cookie']! : [],
     };
   } catch (error) {
-    logger.error(
+    console.log(
       `[mypelindo.providers.ts] userDoLoginPelindo give error: ${error}`
     );
     return { success: false, token: '', jsessionid: [] };
@@ -160,7 +160,7 @@ export async function userDoAttandendPelindo({
   taskId?: string;
 }): Promise<number> {
   try {
-    logger.info(
+    console.log(
       '[userDoAttandendPelindo] Executing MyPelindo Attandend Proccess'
     );
     const reqBody = new FormData();
@@ -202,7 +202,7 @@ export async function userDoAttandendPelindo({
 
     let resp = await axios.request(config);
 
-    logger.info('[userDoAttandendPelindo] http response => ');
+    console.log('[userDoAttandendPelindo] http response => ');
     console.log(await resp.data);
 
     if (taskId) {
@@ -215,7 +215,7 @@ export async function userDoAttandendPelindo({
 
     return resp.status;
   } catch (error) {
-    logger.error(
+    console.log(
       `[mypelindo.providers.ts] userDoAttandendPelindo give error: ${error}`
     );
     return 0;
@@ -235,7 +235,7 @@ function getFormLength(form: FormData): Promise<number> {
 export async function wakeupMyPelindoAttendance(
   attandendType: 'absen_masuk' | 'absen_pulang'
 ) {
-  logger.info(
+  console.log(
     `[mypelindo.providers.ts] wakeupMyPelindoAttendance schedulers run on ${new Date()}`
   );
 
@@ -243,7 +243,7 @@ export async function wakeupMyPelindoAttendance(
     const currentDay = new Date()
       .toLocaleString('en-US', { weekday: 'long' })
       .toLowerCase();
-    logger.info(`[mypelindo.providers.ts] day information "${currentDay}"`);
+    console.log(`[mypelindo.providers.ts] day information "${currentDay}"`);
     const bulkData: IPrisma.SchedulerCreateManyInput[] = [];
 
     const userAttandend = await prisma.$queryRaw<
@@ -369,7 +369,7 @@ export async function wakeupMyPelindoAttendance(
       const scheduleTime = new Date(new Date().getTime() + randomTime * 60_000);
 
       if (is_do_attandence == true) {
-        logger.info(
+        console.log(
           `[mypelindo.providers.ts] Doing attendance for ${user.username} day: ${currentDay} hour: ${scheduleTime}`
         );
 
@@ -394,7 +394,7 @@ export async function wakeupMyPelindoAttendance(
             safeSearchCount < safeSearchLimit &&
             imageForAttendance == user.hi_res_clockin_path
           ) {
-            logger.info(
+            console.log(
               `[mypelindo.providers.ts] Try finding other image for ${user.username}, ${safeSearchCount} times`
             );
             randomImage = getRandomMinutes(0, imageData.length - 1);
@@ -492,9 +492,9 @@ export async function wakeupMyPelindoAttendance(
     }
     await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
-    logger.error(
+    console.log(
       '[mypelindo.providers.ts] wakeupMyPelindoAttendance Failed; Error detail:'
     );
-    logger.error(error);
+    console.log(error);
   }
 }

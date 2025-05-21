@@ -20,7 +20,7 @@ export async function userDoLogin(
   username: string,
   password: string
 ): Promise<[boolean, any]> {
-  logger.info(`Executing Login to Eoffice for ${username}`);
+  console.log(`Executing Login to Eoffice for ${username}`);
 
   let isSuccessLogin = false;
   const reqBody = new URLSearchParams();
@@ -55,7 +55,7 @@ export async function userDoAttandend({
   cookies: string;
   taskId?: string;
 }) {
-  logger.info('Executing Attandend Proccess');
+  console.log('Executing Attandend Proccess');
   if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
     return new Error('Pilihan metode absen tidak tersedia');
   }
@@ -82,9 +82,9 @@ export async function userDoAttandend({
     }
   );
 
-  logger.info('--------- HTTP REQUEST ---------');
-  logger.info(`COOKIE => ${resp.headers.getSetCookie()}`);
-  logger.info(`RESPONSE => ${await resp.text()}`);
+  console.log('--------- HTTP REQUEST ---------');
+  console.log(`COOKIE => ${resp.headers.getSetCookie()}`);
+  console.log(`RESPONSE => ${await resp.text()}`);
 
   if (taskId) {
     await prisma.scheduler.deleteMany({
@@ -215,7 +215,7 @@ export async function wakeupAttendance(
         userActivity[Math.floor(Math.random() * userActivity.length)]?.name ||
         'Doing something';
 
-      logger.info(`PROCESSING ${user.username}`);
+      console.log(`PROCESSING ${user.username}`);
 
       const isDoAttandence =
         `is_${currentDay}` as keyof IUserWithAttendanceAndLocations;
@@ -255,7 +255,7 @@ export async function wakeupAttendance(
       };
 
       if (is_do_attandence == true) {
-        logger.info(
+        console.log(
           `Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
         );
 
@@ -290,7 +290,7 @@ export async function wakeupAttendance(
 
     await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
-    logger.error('Wakeup Attendance Failed; Error detail:');
-    logger.error(error);
+    console.log('Wakeup Attendance Failed; Error detail:');
+    console.log(error);
   }
 }
