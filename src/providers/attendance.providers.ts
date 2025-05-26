@@ -20,28 +20,36 @@ export async function userDoLogin(
   username: string,
   password: string
 ): Promise<[boolean, any]> {
-  console.log(`Executing Login to Eoffice for ${username}`);
+  try {
+    console.log(`[userDoLogin]: Executing Login to Eoffice for ${username}`);
 
-  let isSuccessLogin = false;
-  const reqBody = new URLSearchParams();
-  reqBody.append('username', username);
-  reqBody.append('password', password);
+    let isSuccessLogin = false;
+    const reqBody = new URLSearchParams();
+    reqBody.append('username', username);
+    reqBody.append('password', password);
 
-  const resp = await fetch('https://eoffice.ilcs.co.id/p2b/login/do_login', {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-    },
-    method: 'POST',
-    body: reqBody,
-    credentials: 'include',
-  });
+    const resp = await fetch('https://eoffice.ilcs.co.id/p2b/login/do_login', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      method: 'POST',
+      body: reqBody,
+      credentials: 'include',
+    });
 
-  isSuccessLogin =
-    String(resp.headers.get('refresh')).split(';')[1] ===
-    'url=https://eoffice.ilcs.co.id/p2b/absensi/online'
-      ? true
-      : false;
-  return [isSuccessLogin, isSuccessLogin ? resp.headers.get('set-cookie') : ''];
+    isSuccessLogin =
+      String(resp.headers.get('refresh')).split(';')[1] ===
+      'url=https://eoffice.ilcs.co.id/p2b/absensi/online'
+        ? true
+        : false;
+    return [
+      isSuccessLogin,
+      isSuccessLogin ? resp.headers.get('set-cookie') : '',
+    ];
+  } catch (error) {
+    console.log('[userDoLogin]: Error Detail: ', error);
+    return [false, error];
+  }
 }
 
 export async function userDoAttandend({
@@ -55,43 +63,49 @@ export async function userDoAttandend({
   cookies: string;
   taskId?: string;
 }) {
-  console.log('Executing Attandend Proccess');
-  if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
-    return new Error('Pilihan metode absen tidak tersedia');
-  }
-
-  const reqBody = new URLSearchParams();
-  if (attandendData != null || attandendData != undefined) {
-    for (const key in attandendData) {
-      reqBody.append(key, attandendData[key as keyof ISchedulePayload]);
+  try {
+    console.log('[userDoAttandend]: Executing Attandend Proccess');
+    if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
+      return new Error('Pilihan metode absen tidak tersedia');
     }
-  }
-  const myHeaders = new Headers();
-  const regex = /(ci_session_p2b=[^;]+|TS01d515c4=[^;]+)/g;
-  const setCookies = cookies.match(regex);
-  myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-  myHeaders.append('Cookie', setCookies?.join(';') || '');
+    console.log('[userDoAttandend]: Data: ', attandendData);
 
-  const resp = await fetch(
-    `https://eoffice.ilcs.co.id/p2b/absensi/${attandendType}`,
-    {
-      headers: myHeaders,
-      method: 'POST',
-      body: reqBody,
-      credentials: 'include',
+    const reqBody = new URLSearchParams();
+    if (attandendData != null || attandendData != undefined) {
+      for (const key in attandendData) {
+        reqBody.append(key, attandendData[key as keyof ISchedulePayload]);
+      }
     }
-  );
+    const myHeaders = new Headers();
+    const regex = /(ci_session_p2b=[^;]+|TS01d515c4=[^;]+)/g;
+    const setCookies = cookies.match(regex);
+    myHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+    myHeaders.append('Cookie', setCookies?.join(';') || '');
 
-  console.log('--------- HTTP REQUEST ---------');
-  console.log(`COOKIE => ${resp.headers.getSetCookie()}`);
-  console.log(`RESPONSE => ${await resp.text()}`);
+    const resp = await fetch(
+      `https://eoffice.ilcs.co.id/p2b/absensi/${attandendType}`,
+      {
+        headers: myHeaders,
+        method: 'POST',
+        body: reqBody,
+        credentials: 'include',
+      }
+    );
 
-  if (taskId) {
-    await prisma.scheduler.deleteMany({
-      where: {
-        task_id: taskId,
-      },
-    });
+    console.log('[userDoAttandend]: --------- HTTP REQUEST ---------');
+    console.log(`[userDoAttandend]: COOKIE => ${resp.headers.getSetCookie()}`);
+    console.log(`[userDoAttandend]: RESPONSE => ${await resp.text()}`);
+
+    if (taskId) {
+      await prisma.scheduler.deleteMany({
+        where: {
+          task_id: taskId,
+        },
+      });
+    }
+  } catch (error) {
+    console.log('[userDoAttandend]: Error Detail: ', error);
+    return error;
   }
 }
 
@@ -215,7 +229,7 @@ export async function wakeupAttendance(
         userActivity[Math.floor(Math.random() * userActivity.length)]?.name ||
         'Doing something';
 
-      console.log(`PROCESSING ${user.username}`);
+      console.log(`[wakeupAttendance]: PROCESSING ${user.username}`);
 
       const isDoAttandence =
         `is_${currentDay}` as keyof IUserWithAttendanceAndLocations;
@@ -256,7 +270,7 @@ export async function wakeupAttendance(
 
       if (is_do_attandence == true) {
         console.log(
-          `Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
+          `[wakeupAttendance]: Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
         );
 
         const taskId = crypto.randomUUID();
@@ -290,7 +304,7 @@ export async function wakeupAttendance(
 
     await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
-    console.log('Wakeup Attendance Failed; Error detail:');
+    console.log('[wakeupAttendance]: Wakeup Attendance Failed; Error detail:');
     console.log(error);
   }
 }
