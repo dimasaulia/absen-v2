@@ -9,7 +9,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1024M
+          memory: 1512M
     restart: always
     volumes:
       - /home/dimasaulia/docker_volumes/absen_storage:/usr/src/app/src/public/img/storage
