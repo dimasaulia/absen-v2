@@ -21,7 +21,9 @@ export async function userDoLogin(
   password: string
 ): Promise<[boolean, any]> {
   try {
-    console.log(`[userDoLogin]: Executing Login to Eoffice for ${username}`);
+    console.log(
+      `${new Date()} - [userDoLogin]: Executing Login to Eoffice for ${username}`
+    );
 
     let isSuccessLogin = false;
     const reqBody = new URLSearchParams();
@@ -47,7 +49,7 @@ export async function userDoLogin(
       isSuccessLogin ? resp.headers.get('set-cookie') : '',
     ];
   } catch (error) {
-    console.log('[userDoLogin]: Error Detail: ', error);
+    console.log(`${new Date()} - [userDoLogin]: Error Detail: `, error);
     return [false, error];
   }
 }
@@ -64,11 +66,13 @@ export async function userDoAttandend({
   taskId?: string;
 }) {
   try {
-    console.log('[userDoAttandend]: Executing Attandend Proccess');
+    console.log(
+      `${new Date()} - [userDoAttandend]: Executing Attandend Proccess`
+    );
     if (!['absen_masuk', 'absen_pulang'].includes(attandendType)) {
       return new Error('Pilihan metode absen tidak tersedia');
     }
-    console.log('[userDoAttandend]: Data: ', attandendData);
+    console.log(`${new Date()} - [userDoAttandend]: Data: `, attandendData);
 
     const reqBody = new URLSearchParams();
     if (attandendData != null || attandendData != undefined) {
@@ -92,9 +96,15 @@ export async function userDoAttandend({
       }
     );
 
-    console.log('[userDoAttandend]: --------- HTTP REQUEST ---------');
-    console.log(`[userDoAttandend]: COOKIE => ${resp.headers.getSetCookie()}`);
-    console.log(`[userDoAttandend]: RESPONSE => ${await resp.text()}`);
+    console.log(
+      `${new Date()} - [userDoAttandend]: --------- HTTP REQUEST ---------`
+    );
+    console.log(
+      `${new Date()} - [userDoAttandend]: COOKIE => ${resp.headers.getSetCookie()}`
+    );
+    console.log(
+      `${new Date()} - [userDoAttandend]: RESPONSE => ${await resp.text()}`
+    );
 
     if (taskId) {
       await prisma.scheduler.deleteMany({
@@ -104,7 +114,7 @@ export async function userDoAttandend({
       });
     }
   } catch (error) {
-    console.log('[userDoAttandend]: Error Detail: ', error);
+    console.log(`${new Date()} - [userDoAttandend]: Error Detail: `, error);
     return error;
   }
 }
@@ -229,8 +239,6 @@ export async function wakeupAttendance(
         userActivity[Math.floor(Math.random() * userActivity.length)]?.name ||
         'Doing something';
 
-      console.log(`[wakeupAttendance]: PROCESSING ${user.username}`);
-
       const isDoAttandence =
         `is_${currentDay}` as keyof IUserWithAttendanceAndLocations;
       const lateMinTimeKey =
@@ -268,9 +276,17 @@ export async function wakeupAttendance(
         aktivitas: String(randomActivity),
       };
 
+      console.log(
+        `${new Date()} - [wakeupAttendance]: PROCESSING ${
+          user.username
+        } AND IS DO ATTANDANCE ${is_do_attandence}`
+      );
+
       if (is_do_attandence == true) {
         console.log(
-          `[wakeupAttendance]: Lakukan Absen Untuk ${user.username} di hari ${currentDay} pada jam ${scheduleTime}`
+          `${new Date()} - [wakeupAttendance]: Lakukan Absen Untuk ${
+            user.username
+          } di hari ${currentDay} pada jam ${scheduleTime}`
         );
 
         const taskId = crypto.randomUUID();
@@ -304,7 +320,9 @@ export async function wakeupAttendance(
 
     await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
-    console.log('[wakeupAttendance]: Wakeup Attendance Failed; Error detail:');
+    console.log(
+      `${new Date()} - [wakeupAttendance]: Wakeup Attendance Failed; Error detail:`
+    );
     console.log(error);
   }
 }
