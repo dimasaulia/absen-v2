@@ -104,7 +104,7 @@ export async function userDoLoginPelindo({
 }): Promise<MyPelindoLoginRespone> {
   try {
     console.log(
-      '[userDoAttandendPelindo] Executing userDoLoginPelindo Proccess'
+      `${new Date()} - [userDoAttandendPelindo] Executing userDoLoginPelindo Proccess`
     );
     const authorizationBase64 = Buffer.from(`${username}:${password}`).toString(
       'base64'
@@ -129,6 +129,7 @@ export async function userDoLoginPelindo({
 
     const httpRespData = (await response.data) as MyPelindoUserResponse;
 
+    console.log(new Date());
     console.log({
       status: response.status,
       token: httpRespData.ACCESSTOKEN,
@@ -142,7 +143,7 @@ export async function userDoLoginPelindo({
     };
   } catch (error) {
     console.log(
-      `[mypelindo.providers.ts] userDoLoginPelindo give error: ${error}`
+      `${new Date()} - [mypelindo.providers.ts] userDoLoginPelindo give error: ${error}`
     );
     return { success: false, token: '', jsessionid: [] };
   }
@@ -161,7 +162,7 @@ export async function userDoAttandendPelindo({
 }): Promise<number> {
   try {
     console.log(
-      '[userDoAttandendPelindo] Executing MyPelindo Attandend Proccess'
+      `${new Date()} - [userDoAttandendPelindo] Executing MyPelindo Attandend Proccess`
     );
     const reqBody = new FormData();
     if (attandendData != null || attandendData != undefined) {
@@ -202,7 +203,7 @@ export async function userDoAttandendPelindo({
 
     let resp = await axios.request(config);
 
-    console.log('[userDoAttandendPelindo] http response => ');
+    console.log(`${new Date()} - [userDoAttandendPelindo] http response => `);
     console.log(await resp.data);
 
     if (taskId) {
@@ -216,7 +217,7 @@ export async function userDoAttandendPelindo({
     return resp.status;
   } catch (error) {
     console.log(
-      `[mypelindo.providers.ts] userDoAttandendPelindo give error: ${error}`
+      `${new Date()} - [mypelindo.providers.ts] userDoAttandendPelindo give error: ${error}`
     );
     return 0;
   }
@@ -236,7 +237,7 @@ export async function wakeupMyPelindoAttendance(
   attandendType: 'absen_masuk' | 'absen_pulang'
 ) {
   console.log(
-    `[mypelindo.providers.ts] wakeupMyPelindoAttendance schedulers run on ${new Date()}`
+    `${new Date()} - [mypelindo.providers.ts] wakeupMyPelindoAttendance schedulers run on ${new Date()}`
   );
 
   try {
@@ -493,7 +494,7 @@ export async function wakeupMyPelindoAttendance(
     await prisma.scheduler.createMany({ data: bulkData });
   } catch (error) {
     console.log(
-      '[mypelindo.providers.ts] wakeupMyPelindoAttendance Failed; Error detail:'
+      `${new Date()} - [mypelindo.providers.ts] wakeupMyPelindoAttendance Failed; Error detail:`
     );
     console.log(error);
   }
